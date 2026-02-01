@@ -3890,16 +3890,21 @@
         console.error('Error:', error);
         loadingOverlay.classList.add('hidden');
         
-        if (error.message === 'SERVER_OFFLINE') {
-          alert('⚠️ The analysis server is not running.\n\nTo start it, run this command in terminal:\n\ncd server && npm start\n\nThen try again!');
-        } else if (error.message.includes('API key not configured') || error.message.includes('GEMINI_API_KEY')) {
-          alert('🔑 API Key Required\n\nTo use real AI analysis, you need to:\n\n1. Get a FREE API key from:\n   https://aistudio.google.com/apikey\n\n2. Create a file: server/.env\n\n3. Add this line:\n   GEMINI_API_KEY=your_key_here\n\n4. Restart the server:\n   cd server && npm start');
+        if (error.message === 'SERVER_OFFLINE' || error.message.includes('API key not configured') || error.message.includes('GEMINI_API_KEY')) {
+          // Show demo results when server is offline (for portfolio/showcase)
+          console.log('Server offline - showing demo results');
+          const demoData = currentScanType === 'body' ? getMockBodyResults() : getMockResults();
+          displayResults(demoData, true);
+          return;
         } else if (error.message.includes('No face detected') || error.message.includes("doesn't appear to be")) {
           alert('🙈 Image Issue\n\n' + error.message + '\n\nPlease upload a clear photo.');
         } else {
-          alert(`❌ Analysis failed: ${error.message}\n\nPlease make sure the server is running and try again.`);
+          // For any other error, also show demo results
+          console.log('Error occurred - showing demo results:', error.message);
+          const demoData = currentScanType === 'body' ? getMockBodyResults() : getMockResults();
+          displayResults(demoData, true);
+          return;
         }
-        return;
       } finally {
         loadingOverlay.classList.add('hidden');
       }
@@ -4657,6 +4662,76 @@
       } else {
         retakeBox.classList.add('hidden');
       }
+    }
+
+    // Mock results for demo mode (when server is offline)
+    function getMockResults() {
+      return {
+        photoQuality: {
+          score: 0.75,
+          issues: ['side_missing'],
+          assessmentLimitations: ['Chin projection cannot be accurately assessed without side profile']
+        },
+        overall: {
+          currentScore10: 5.8,
+          potentialScore10: 7.2,
+          confidence: 'medium',
+          summary: 'Demo Mode: You have good facial harmony with balanced features. Main opportunities are in skincare, grooming, and styling - all achievable improvements.',
+          calibrationNote: 'This is demo data. For real AI analysis, the server needs to be running.'
+        },
+        potential: {
+          totalPossibleGain: 1.4,
+          deltas: [
+            { lever: 'Skincare routine', currentIssue: 'Skin texture could be improved', delta: 0.5, timeline: '8-12 weeks', difficulty: 'easy', steps: ['Daily SPF', 'Retinol 2x/week', 'Hydration'] },
+            { lever: 'Hairstyle optimization', currentIssue: 'Style could better complement face shape', delta: 0.4, timeline: '2-4 weeks', difficulty: 'easy', steps: ['Consult stylist', 'Try new products'] },
+            { lever: 'Eyebrow grooming', currentIssue: 'Brows could be more defined', delta: 0.3, timeline: '1-2 weeks', difficulty: 'easy', steps: ['Shape brows', 'Fill if sparse'] }
+          ],
+          top3Levers: [
+            { lever: 'Skincare routine', delta: 0.5, timeline: '8-12 weeks', priority: 1 },
+            { lever: 'Hairstyle optimization', delta: 0.4, timeline: '2-4 weeks', priority: 2 },
+            { lever: 'Eyebrow grooming', delta: 0.3, timeline: '1-2 weeks', priority: 3 }
+          ],
+          timelineToFullPotential: '10-14 weeks'
+        },
+        features: [
+          { label: 'Skin Quality', rating10: 5.5, confidence: 'high', evidence: 'Demo: Even tone with minor texture', strengths: ['Even skin tone'], holdingBack: ['Minor texture'] },
+          { label: 'Eye Area', rating10: 6.2, confidence: 'high', evidence: 'Demo: Good symmetry and shape', strengths: ['Symmetric eyes'], holdingBack: ['Could brighten'] },
+          { label: 'Facial Harmony', rating10: 6.0, confidence: 'medium', evidence: 'Demo: Well-balanced proportions', strengths: ['Good proportions'], holdingBack: ['Minor asymmetry'] },
+          { label: 'Jawline', rating10: 5.5, confidence: 'medium', evidence: 'Demo: Decent definition', strengths: ['Visible structure'], holdingBack: ['Could be more defined'] }
+        ]
+      };
+    }
+
+    function getMockBodyResults() {
+      return {
+        photoQuality: { score: 0.8, issues: [] },
+        overall: {
+          currentScore10: 5.5,
+          potentialScore10: 7.0,
+          confidence: 'medium',
+          summary: 'Demo Mode: Good foundation with room for improvement in posture and muscle development.',
+          calibrationNote: 'This is demo data. For real AI analysis, the server needs to be running.'
+        },
+        potential: {
+          totalPossibleGain: 1.5,
+          deltas: [
+            { lever: 'Posture correction', currentIssue: 'Slight forward head posture', delta: 0.5, timeline: '4-8 weeks', difficulty: 'moderate', steps: ['Chin tucks', 'Wall angels', 'Ergonomic setup'] },
+            { lever: 'Upper body development', currentIssue: 'Could improve shoulder-to-waist ratio', delta: 0.5, timeline: '12-16 weeks', difficulty: 'moderate', steps: ['Shoulder exercises', 'Back training'] },
+            { lever: 'Core strengthening', currentIssue: 'Core stability could improve', delta: 0.3, timeline: '8-12 weeks', difficulty: 'easy', steps: ['Planks', 'Dead bugs'] }
+          ],
+          top3Levers: [
+            { lever: 'Posture correction', delta: 0.5, timeline: '4-8 weeks', priority: 1 },
+            { lever: 'Upper body development', delta: 0.5, timeline: '12-16 weeks', priority: 2 },
+            { lever: 'Core strengthening', delta: 0.3, timeline: '8-12 weeks', priority: 3 }
+          ],
+          timelineToFullPotential: '14-18 weeks'
+        },
+        features: [
+          { label: 'Posture', rating10: 5.0, confidence: 'high', evidence: 'Demo: Room for improvement', strengths: ['Aware of posture'], holdingBack: ['Forward head'] },
+          { label: 'Proportions', rating10: 5.8, confidence: 'medium', evidence: 'Demo: Balanced build', strengths: ['Good frame'], holdingBack: ['Could improve ratio'] },
+          { label: 'Muscle Definition', rating10: 5.5, confidence: 'medium', evidence: 'Demo: Foundation present', strengths: ['Some definition'], holdingBack: ['More development needed'] }
+        ]
+      };
     }
 
     // Enhanced displayResults - integrate new features
