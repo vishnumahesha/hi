@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Face Analyzer",
+    "slug": "face-analyzer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0a0f"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.faceanalyzer.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Face Analyzer needs camera access to capture your photos for analysis.",
+        "NSPhotoLibraryUsageDescription": "Face Analyzer needs photo library access to select photos for analysis."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0a0f"
+      },
+      "package": "com.faceanalyzer.app",
+      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Face Analyzer to access your camera for photo capture."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Face Analyzer to access your photos for analysis."
+        }
+      ]
+    ],
+    "scheme": "faceanalyzer"
+  }
+}
