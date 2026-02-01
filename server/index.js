@@ -425,9 +425,329 @@ function calculateVariance(numbers) {
   return squaredDiffs.reduce((a, b) => a + b, 0) / numbers.length;
 }
 
+// ====== BODY ANALYSIS ENDPOINT ======
+const BODY_SYSTEM_PROMPT = `You are a body/physique aesthetics analyzer. You must be HONEST and SPECIFIC without being harsh.
+Output STRICT JSON ONLY. No markdown. No extra text. No code blocks.
+
+===== CRITICAL SCORING RULES =====
+
+1. USE REALISTIC DISTRIBUTION:
+   - Average should be ~5.5/10
+   - Most people (70%) should score 4.5-6.5
+   - A 7.0 is ABOVE AVERAGE (top 30%) - not default
+   - 8.0+ is RARE (top 15%) - requires visible muscle development AND low body fat
+   - NEVER give 7.0 to everything - that's score inflation
+
+2. REQUIRE VARIANCE:
+   - Different features should have DIFFERENT scores
+   - Everyone has strengths (some 6-7s) and weaknesses (some 4-5s)
+   - If all scores are within 0.5 of each other, you're doing it wrong
+
+3. BODY FEATURE KEYS TO USE:
+   - leanness: Body fat presentation, definition visibility
+   - v_taper: Shoulder-to-waist ratio appearance
+   - posture: Spine alignment, shoulder position, head carriage
+   - upper_body_balance: Chest/back/shoulder development balance
+   - lower_body_balance: Quad/hamstring/glute development
+   - core_presentation: Midsection appearance, waist definition
+
+4. COMPUTE POTENTIAL (this is key):
+   - currentScore10: how they look NOW in these photos
+   - potentialScore10: realistic after HIGH-ROI improvements
+   - Realistic deltas:
+     * Body fat reduction: +0.4 to +1.0
+     * Shoulder/lat development: +0.3 to +0.8
+     * Posture correction: +0.2 to +0.5
+     * Core training: +0.1 to +0.4
+   - Cap potential at 10.0
+
+5. NO GENETICS SHAMING:
+   - DON'T say "narrow clavicles" or "bad genetics"
+   - DO say "Shoulder width appearance can be improved via delt/lat development + posture"
+   - Frame things as actionable improvements
+
+===== TONE RULES =====
+- Neutral and constructive
+- NO insults, NO harsh criticism
+- Frame weaknesses as "areas for improvement" not "flaws"
+- Focus on what CAN be changed
+
+===== REQUIRED JSON STRUCTURE =====
+{
+  "tier": { "isPremium": boolean, "depth": "free|premium" },
+  "inputs": { "gender": "male|female", "sideProvided": boolean },
+  "photoQuality": {
+    "score": 0-100,
+    "issues": ["too_dark", "not_full_body", "baggy_clothes", "pose_inconsistent", "side_missing", "blurry"]
+  },
+  "overall": {
+    "currentScore10": HONEST number (most people 4.5-6.5),
+    "potentialScore10": currentScore + deltas (realistic),
+    "confidence": "low|medium|high",
+    "summary": "2-3 sentences about THIS person's physique",
+    "calibrationNote": "explain scoring context"
+  },
+  "potential": {
+    "totalPossibleGain": sum of deltas,
+    "deltas": [
+      {
+        "lever": "body_fat|shoulders|lats|posture|core",
+        "currentIssue": "specific issue",
+        "delta": realistic number,
+        "potentialGain": "what improves",
+        "timeline": "X weeks",
+        "difficulty": "easy|moderate|difficult",
+        "steps": ["step1", "step2"]
+      }
+    ],
+    "top3Levers": [
+      { "lever": "name", "title": "Display Name", "delta": number, "timeline": "X weeks", "priority": 1, "impact": "high|medium|low", "why": "reason" }
+    ],
+    "timelineToFullPotential": "X-Y weeks"
+  },
+  "topLevers": [
+    { "title": "string", "why": "string", "impact": "high|medium|low", "timeline": "string", "lever": "string", "delta": number }
+  ],
+  "features": [
+    {
+      "key": "leanness|v_taper|posture|upper_body_balance|lower_body_balance|core_presentation",
+      "label": "Display Name",
+      "rating10": number,
+      "confidence": "low|medium|high",
+      "evidence": "specific visible cues",
+      "strengths": ["string"],
+      "limitations": ["string"],
+      "why": ["assessment notes"],
+      "fixes": [
+        {
+          "title": "string",
+          "type": "workout|nutrition|mobility|routine|posture",
+          "difficulty": "easy|moderate|difficult",
+          "timeToSeeChange": "string",
+          "steps": ["string"]
+        }
+      ]
+    }
+  ],
+  "measurements": {
+    "shoulderToWaistRatio": { "value": number, "confidence": "low|medium|high", "note": "string" },
+    "posture": {
+      "forwardHead": { "value": number, "confidence": "low|medium|high", "note": "string" },
+      "roundedShoulders": { "value": number, "confidence": "low|medium|high", "note": "string" }
+    }
+  },
+  "poseOverlay": {
+    "normalized": true,
+    "keypoints": [{ "name": "string", "x": number, "y": number }],
+    "keyLines": [{ "name": "string", "a": { "x": number, "y": number }, "b": { "x": number, "y": number } }],
+    "renderHint": "free_keylines_only|full_overlay"
+  },
+  "planHooks": {
+    "workoutFocus": ["delts", "lats", "posture"],
+    "nutritionFocus": ["protein", "caloric_deficit"]
+  },
+  "safety": {
+    "disclaimer": "Estimates vary with lighting/angle and clothing. This is guidance, not medical advice.",
+    "tone": "neutral"
+  }
+}`;
+
+app.post('/api/body/analyze', async (req, res) => {
+  try {
+    if (!GEMINI_API_KEY || !genAI) {
+      return res.status(503).json({
+        error: 'API key not configured',
+        message: 'GEMINI_API_KEY not set. Get your FREE key from https://aistudio.google.com/apikey'
+      });
+    }
+
+    const { frontImage, sideImage, gender, height, weight, gymAccess, goal, premiumEnabled } = req.body;
+
+    if (!frontImage) {
+      return res.status(400).json({ error: 'Front body image is required' });
+    }
+
+    const tier = premiumEnabled ? 'premium' : 'free';
+    console.log(`Analyzing body - Gender: ${gender}, Tier: ${tier}, Side photo: ${!!sideImage}`);
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+    const imageParts = [
+      {
+        inlineData: {
+          data: frontImage,
+          mimeType: 'image/jpeg',
+        },
+      },
+    ];
+
+    // BODY DETECTION CHECK
+    console.log('Checking for body in image...');
+    const bodyCheckPrompt = `Look at this image and determine if it contains a human body that can be analyzed for physique/fitness.
+
+Respond with ONLY a JSON object in this exact format:
+{
+  "hasBody": true or false,
+  "isFullBody": true or false,
+  "reason": "brief explanation"
+}
+
+Rules:
+- hasBody = true if there is a visible human body (doesn't need to be full body)
+- isFullBody = true if head to at least knees are visible
+- hasBody = false if: no person, animal, object only, completely obscured`;
+
+    const bodyCheckResult = await model.generateContent([bodyCheckPrompt, imageParts[0]]);
+    const bodyCheckResponse = await bodyCheckResult.response;
+    let bodyCheckText = bodyCheckResponse.text().replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    try {
+      const bodyCheck = JSON.parse(bodyCheckText);
+      
+      if (!bodyCheck.hasBody) {
+        console.log('No body detected:', bodyCheck.reason);
+        return res.status(400).json({
+          error: 'No body detected',
+          message: `This doesn't appear to show a body. ${bodyCheck.reason || 'Please upload a clear photo showing your body.'}`,
+          suggestion: 'Please upload a clear photo showing your body from head to at least knees.'
+        });
+      }
+      console.log('Body detected, proceeding with analysis...');
+    } catch (parseError) {
+      console.log('Body check parse failed, proceeding with analysis...');
+    }
+
+    if (sideImage) {
+      imageParts.push({
+        inlineData: {
+          data: sideImage,
+          mimeType: 'image/jpeg',
+        },
+      });
+    }
+
+    const userPrompt = `${BODY_SYSTEM_PROMPT}
+
+===== CURRENT ANALYSIS REQUEST =====
+Gender: ${gender}
+Tier: ${tier}
+Side photo: ${sideImage ? 'YES - can assess posture profile' : 'NO - mark posture as LOW confidence'}
+Height: ${height || 'Not provided'}
+Weight: ${weight || 'Not provided'}
+Gym Access: ${gymAccess || 'Not provided'}
+Goal: ${goal || 'Not provided'}
+
+ANALYZE THESE 6 BODY FEATURES:
+1. leanness - Body fat presentation
+2. v_taper - Shoulder-to-waist ratio
+3. posture - Alignment and carriage
+4. upper_body_balance - Chest/back/shoulder balance
+5. lower_body_balance - Lower body development
+6. core_presentation - Midsection appearance
+
+REMEMBER:
+1. Be HONEST - most people score 4.5-6.5 overall
+2. Create VARIANCE - different features get different scores
+3. NO GENETICS SHAMING - focus on what can be improved
+4. Top 3 levers should be actionable with realistic timelines
+
+Now analyze the photo and return ONLY the JSON object.`;
+
+    const result = await model.generateContent([userPrompt, ...imageParts]);
+    const response = await result.response;
+    let text = response.text();
+
+    // Clean up response
+    text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(text);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Raw response:', text.substring(0, 500));
+      throw new Error('Failed to parse AI response');
+    }
+
+    // Apply calibration
+    parsedResponse = applyBodyCalibration(parsedResponse);
+
+    // Ensure tier info is correct
+    parsedResponse.tier = {
+      isPremium: premiumEnabled,
+      depth: tier
+    };
+
+    // Add inputs
+    parsedResponse.inputs = {
+      gender,
+      sideProvided: !!sideImage,
+      height,
+      weight,
+      gymAccess,
+      goal
+    };
+
+    // Add side_missing if no side photo
+    if (!sideImage && parsedResponse.photoQuality) {
+      if (!parsedResponse.photoQuality.issues) {
+        parsedResponse.photoQuality.issues = [];
+      }
+      if (!parsedResponse.photoQuality.issues.includes('side_missing')) {
+        parsedResponse.photoQuality.issues.push('side_missing');
+      }
+    }
+
+    console.log('Body analysis complete - Current:', parsedResponse.overall?.currentScore10?.toFixed(1), 
+                'Potential:', parsedResponse.overall?.potentialScore10?.toFixed(1));
+    res.json(parsedResponse);
+  } catch (error) {
+    console.error('Body analysis error:', error);
+    res.status(500).json({
+      error: 'Body analysis failed',
+      message: error.message
+    });
+  }
+});
+
+// Calibration function for body analysis
+function applyBodyCalibration(response) {
+  const features = response.features || [];
+  const scores = features.map(f => f.rating10).filter(s => typeof s === 'number');
+  
+  if (scores.length > 0) {
+    const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+    
+    if (mean > 6.5) {
+      const compressionFactor = 6.0 / mean;
+      
+      features.forEach(feature => {
+        if (typeof feature.rating10 === 'number') {
+          const delta = feature.rating10 - 5.5;
+          feature.rating10 = Math.round((5.5 + delta * compressionFactor) * 10) / 10;
+          feature.rating10 = Math.max(1, Math.min(9.5, feature.rating10));
+        }
+      });
+      
+      if (response.overall) {
+        if (typeof response.overall.currentScore10 === 'number' && response.overall.currentScore10 > 6.5) {
+          const delta = response.overall.currentScore10 - 5.5;
+          response.overall.currentScore10 = Math.round((5.5 + delta * compressionFactor) * 10) / 10;
+        }
+        if (typeof response.overall.potentialScore10 === 'number' && response.overall.potentialScore10 > 8.0) {
+          response.overall.potentialScore10 = Math.min(8.5, response.overall.potentialScore10);
+        }
+      }
+    }
+  }
+  
+  return response;
+}
+
 app.listen(PORT, () => {
-  console.log(`\n✨ Face Analyzer server running on port ${PORT}`);
+  console.log(`\n✨ Aesthetics Analyzer server running on port ${PORT}`);
   console.log(`   Health check: http://localhost:${PORT}/health`);
-  console.log(`   Analysis endpoint: POST http://localhost:${PORT}/api/face/analyze\n`);
+  console.log(`   Face analysis: POST http://localhost:${PORT}/api/face/analyze`);
+  console.log(`   Body analysis: POST http://localhost:${PORT}/api/body/analyze\n`);
   console.log('📊 Scoring calibration active - honest scores, no inflation');
 });

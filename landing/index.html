@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Face Analyzer - AI-Powered Facial Aesthetics</title>
+  <title>Aesthetics Analyzer - AI-Powered Face & Body Analysis</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,6 +19,7 @@
       --primary-dark: #7C3AED;
       --primary-light: #A78BFA;
       --accent: #06B6D4;
+      --accent-body: #10B981;
       --background: #0A0A0F;
       --surface: #12121A;
       --surface-light: #1E1E2E;
@@ -165,7 +166,12 @@
       color: var(--primary);
     }
 
-    .nav-cta {
+    /* Scan Type Dropdown */
+    .scan-dropdown {
+      position: relative;
+    }
+
+    .scan-dropdown-btn {
       background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: var(--text);
       padding: 0.6rem 1.5rem;
@@ -174,11 +180,89 @@
       font-weight: 600;
       transition: transform 0.3s, box-shadow 0.3s;
       box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    .nav-cta:hover {
+    .scan-dropdown-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 0 30px rgba(139, 92, 246, 0.6), 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+
+    .scan-dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 0.5rem;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      min-width: 200px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .scan-dropdown:hover .scan-dropdown-content {
+      display: block;
+      animation: dropdownFadeIn 0.2s ease-out;
+    }
+
+    @keyframes dropdownFadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .scan-option {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .scan-option:hover {
+      background: var(--surface-light);
+    }
+
+    .scan-option-icon {
+      font-size: 1.5rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .scan-option-icon.face {
+      background: rgba(139, 92, 246, 0.2);
+    }
+
+    .scan-option-icon.body {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    .scan-option-text {
+      flex: 1;
+    }
+
+    .scan-option-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .scan-option-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
 
     /* Hero Section */
@@ -294,6 +378,17 @@
     .btn-primary:hover {
       transform: translateY(-3px);
       box-shadow: 0 0 40px rgba(139, 92, 246, 0.7), 0 8px 30px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-body {
+      background: linear-gradient(135deg, var(--accent-body), #059669);
+      color: var(--text);
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), 0 4px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-body:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.7), 0 8px 30px rgba(16, 185, 129, 0.4);
     }
 
     .btn-secondary {
@@ -455,6 +550,106 @@
       min-width: 30px;
     }
 
+    /* Scan Type Selector Section */
+    .scan-selector-section {
+      padding: 4rem 2rem;
+      background: linear-gradient(180deg, transparent, rgba(139, 92, 246, 0.03), transparent);
+    }
+
+    .scan-selector-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .scan-selector-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .scan-selector-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .scan-selector-header p {
+      color: var(--text-secondary);
+    }
+
+    .scan-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .scan-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 2rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scan-card.face {
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .scan-card.face:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+      transform: translateY(-5px);
+    }
+
+    .scan-card.body {
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .scan-card.body:hover {
+      border-color: var(--success);
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
+      transform: translateY(-5px);
+    }
+
+    .scan-card-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .scan-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .scan-card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .scan-card-features {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .scan-card-features li {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      padding: 0.25rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .scan-card-features li::before {
+      content: '✓';
+      color: var(--success);
+      font-weight: 600;
+    }
+
     /* Upload Section */
     .upload-section {
       padding: 2rem 2rem 4rem;
@@ -484,6 +679,47 @@
       font-size: 1.125rem;
     }
 
+    /* Scan Type Toggle */
+    .scan-type-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.5rem;
+      border-radius: 12px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .scan-type-btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .scan-type-btn.active.face {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--text);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .scan-type-btn.active.body {
+      background: linear-gradient(135deg, var(--accent-body), #059669);
+      color: var(--text);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
     .upload-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -508,10 +744,20 @@
       box-shadow: 0 0 30px rgba(139, 92, 246, 0.1), inset 0 0 30px rgba(139, 92, 246, 0.05);
     }
 
+    .upload-box.body-mode {
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.1), inset 0 0 30px rgba(16, 185, 129, 0.05);
+    }
+
     .upload-box:hover {
       border-color: var(--primary);
       background: var(--surface-light);
       box-shadow: 0 0 50px rgba(139, 92, 246, 0.3), inset 0 0 40px rgba(139, 92, 246, 0.1);
+    }
+
+    .upload-box.body-mode:hover {
+      border-color: var(--success);
+      box-shadow: 0 0 50px rgba(16, 185, 129, 0.3), inset 0 0 40px rgba(16, 185, 129, 0.1);
     }
 
     .upload-box.has-image {
@@ -570,6 +816,43 @@
       font-weight: 500;
     }
 
+    /* Photo tips for body scan */
+    .body-photo-tips {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .body-photo-tips h4 {
+      color: var(--success);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .body-photo-tips ul {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .body-photo-tips li {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .body-photo-tips li::before {
+      content: '•';
+      color: var(--success);
+    }
+
     .gender-selector {
       display: flex;
       justify-content: center;
@@ -596,6 +879,44 @@
       box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
     }
 
+    /* Optional inputs for body scan */
+    .optional-inputs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .optional-input {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .optional-input label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .optional-input input,
+    .optional-input select {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--surface-light);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .optional-input input:focus,
+    .optional-input select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
     .analyze-btn {
       width: 100%;
       padding: 1.25rem 2rem;
@@ -614,9 +935,18 @@
       box-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
     }
 
+    .analyze-btn.body-mode {
+      background: linear-gradient(135deg, var(--accent-body), #059669);
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
+    }
+
     .analyze-btn:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: 0 0 60px rgba(139, 92, 246, 0.7), 0 10px 30px rgba(139, 92, 246, 0.4);
+    }
+
+    .analyze-btn.body-mode:hover:not(:disabled) {
+      box-shadow: 0 0 60px rgba(16, 185, 129, 0.7), 0 10px 30px rgba(16, 185, 129, 0.4);
     }
 
     .analyze-btn:disabled {
@@ -649,6 +979,11 @@
       animation: spin 1s linear infinite;
       margin-bottom: 1.5rem;
       box-shadow: 0 0 30px rgba(139, 92, 246, 0.5), inset 0 0 20px rgba(139, 92, 246, 0.2);
+    }
+
+    .loading-spinner.body-mode {
+      border-top-color: var(--success);
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.2);
     }
 
     @keyframes spin {
@@ -697,6 +1032,10 @@
       text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
     }
 
+    .results-header.body-mode h2 {
+      text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+    }
+
     .overall-score {
       display: flex;
       flex-direction: column;
@@ -720,6 +1059,10 @@
       opacity: 0;
       animation: bgGlowIn 2s ease forwards;
       animation-delay: 1s;
+    }
+
+    .overall-score.body-mode::before {
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
     }
 
     @keyframes bgGlowIn {
@@ -1343,6 +1686,11 @@
       border-color: rgba(139, 92, 246, 0.2);
     }
 
+    .feature-result-card.body-mode:hover {
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 25px rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
     .feature-result-header {
       display: flex;
       justify-content: space-between;
@@ -1361,6 +1709,10 @@
       color: var(--primary);
     }
 
+    .feature-result-card.body-mode .feature-result-score {
+      color: var(--success);
+    }
+
     .feature-result-bar {
       height: 8px;
       background: var(--surface-light);
@@ -1374,6 +1726,11 @@
       border-radius: 4px;
       background: linear-gradient(90deg, var(--primary), var(--accent));
       box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+    }
+
+    .feature-result-card.body-mode .feature-result-fill {
+      background: linear-gradient(90deg, var(--success), var(--accent));
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
     }
 
     .feature-result-notes {
@@ -1391,6 +1748,11 @@
       padding: 2rem;
       border: 1px solid rgba(139, 92, 246, 0.3);
       box-shadow: 0 0 40px rgba(139, 92, 246, 0.15), inset 0 0 40px rgba(139, 92, 246, 0.05);
+    }
+
+    .top-fixes.body-mode {
+      border-color: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.15), inset 0 0 40px rgba(16, 185, 129, 0.05);
     }
 
     .top-fixes h3 {
@@ -1688,6 +2050,716 @@
       display: none !important;
     }
 
+    /* ====== DELTA BREAKDOWN SECTION ====== */
+    .delta-breakdown {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .delta-breakdown h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .delta-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .delta-item:last-child {
+      border-bottom: none;
+    }
+
+    .delta-label {
+      flex: 0 0 120px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .delta-bar-container {
+      flex: 1;
+      height: 8px;
+      background: var(--surface-light);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .delta-bar {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--success), #34d399);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+      transition: width 1s ease-out;
+    }
+
+    .delta-value {
+      flex: 0 0 50px;
+      text-align: right;
+      font-weight: 700;
+      color: var(--success);
+      font-size: 0.95rem;
+    }
+
+    /* ====== 14-DAY ACTION PLAN ====== */
+    .action-plan {
+      background: linear-gradient(135deg, var(--surface), rgba(139, 92, 246, 0.1));
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
+    }
+
+    .action-plan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .action-plan h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .action-plan h3 span {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .streak-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(245, 158, 11, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .streak-badge .fire {
+      font-size: 1.2rem;
+    }
+
+    .streak-count {
+      font-weight: 800;
+      color: var(--warning);
+      font-size: 1.1rem;
+    }
+
+    .streak-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .day-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .day-btn {
+      flex: 0 0 auto;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--surface-light);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .day-btn.completed {
+      background: var(--success);
+      border-color: var(--success);
+      color: var(--text);
+    }
+
+    .day-btn.current {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+      color: var(--primary);
+    }
+
+    .day-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .daily-checklist {
+      background: var(--surface-light);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .checklist-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .checklist-header h4 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .checklist-progress {
+      font-size: 0.85rem;
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--surface);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .checklist-item:hover {
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .checklist-item.completed {
+      opacity: 0.7;
+    }
+
+    .checklist-item.completed .checklist-text {
+      text-decoration: line-through;
+    }
+
+    .checklist-checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--surface-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .checklist-item.completed .checklist-checkbox {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .checklist-text {
+      flex: 1;
+      font-size: 0.95rem;
+    }
+
+    .checklist-category {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(139, 92, 246, 0.2);
+      color: var(--primary-light);
+    }
+
+    /* ====== STYLE ENGINE ====== */
+    .style-engine {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 40px rgba(6, 182, 212, 0.1);
+    }
+
+    .style-engine h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .style-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .style-tab {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--surface-light);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .style-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--text);
+    }
+
+    .style-tab:hover:not(.active) {
+      border-color: var(--primary);
+    }
+
+    .style-content {
+      display: none;
+    }
+
+    .style-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .style-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .style-card {
+      background: var(--surface-light);
+      border-radius: 12px;
+      padding: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s;
+    }
+
+    .style-card:hover {
+      border-color: rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+    }
+
+    .style-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .style-card-icon {
+      font-size: 1.25rem;
+    }
+
+    .style-card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .style-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .style-card .match-score {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .style-card .match-score.high {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+
+    .style-card .match-score.medium {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .skin-routine {
+      background: var(--surface-light);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .routine-time {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+
+    .routine-steps {
+      list-style: none;
+    }
+
+    .routine-steps li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .routine-steps li:last-child {
+      border-bottom: none;
+    }
+
+    .routine-steps li::before {
+      content: attr(data-step);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* ====== PROGRESS PHOTOS ====== */
+    .progress-section {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-header h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .save-progress-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      background: var(--primary);
+      border: none;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .save-progress-btn:hover {
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    }
+
+    .progress-empty {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+    }
+
+    .progress-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .progress-item {
+      background: var(--surface-light);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .progress-item:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    }
+
+    .progress-item img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+    }
+
+    .progress-item-info {
+      padding: 0.75rem;
+    }
+
+    .progress-item-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .progress-item-score {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .compare-mode {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .compare-mode h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .compare-slider-container {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      background: var(--surface-light);
+    }
+
+    .compare-slider-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .compare-slider-container .after-image {
+      clip-path: inset(0 50% 0 0);
+    }
+
+    .compare-slider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      background: var(--primary);
+      cursor: ew-resize;
+      z-index: 10;
+    }
+
+    .compare-slider::before {
+      content: '⟷';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      font-size: 1rem;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    }
+
+    .compare-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.75rem;
+    }
+
+    .compare-labels span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ====== RETAKE GUIDANCE ====== */
+    .retake-guidance {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .retake-guidance h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--warning);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .retake-tips {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .retake-tip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .retake-tip-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    .retake-btn {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background: var(--warning);
+      border: none;
+      color: var(--background);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .retake-btn:hover {
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+    }
+
+    /* ====== WEEKLY RECAP ====== */
+    .weekly-recap {
+      background: linear-gradient(135deg, var(--surface), rgba(16, 185, 129, 0.1));
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .weekly-recap h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .recap-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .recap-stat {
+      text-align: center;
+      padding: 1rem;
+      background: var(--surface);
+      border-radius: 12px;
+    }
+
+    .recap-stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--success);
+    }
+
+    .recap-stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Results page tabs */
+    .results-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.5rem;
+      border-radius: 12px;
+    }
+
+    .results-tab {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .results-tab.active {
+      background: var(--primary);
+      color: var(--text);
+    }
+
+    .results-tab:hover:not(.active) {
+      background: var(--surface-light);
+    }
+
+    .results-tab-content {
+      display: none;
+    }
+
+    .results-tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
     /* Mobile Responsiveness */
     @media (max-width: 968px) {
       .hero-container {
@@ -1742,6 +2814,18 @@
       .score-value {
         font-size: 3.5rem;
       }
+
+      .scan-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .optional-inputs {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .body-photo-tips ul {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 480px) {
@@ -1774,6 +2858,10 @@
       .gain-badge span {
         font-size: 1.5rem;
       }
+
+      .optional-inputs {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -1784,15 +2872,34 @@
     <div class="nav-container">
       <a href="#" class="logo">
         <span class="logo-icon">✨</span>
-        Face Analyzer
+        Aesthetics Analyzer
       </a>
       <ul class="nav-links">
         <li><a href="#" data-page="home" class="active">Home</a></li>
         <li><a href="#" data-page="features">Features</a></li>
         <li><a href="#" data-page="how-it-works">How it Works</a></li>
-        <li><a href="#" data-page="analyze">Analyze</a></li>
       </ul>
-      <a href="#" data-page="analyze" class="nav-cta">Get Started</a>
+      <div class="scan-dropdown">
+        <button class="scan-dropdown-btn">
+          Start Scan ▾
+        </button>
+        <div class="scan-dropdown-content">
+          <a href="#" class="scan-option" data-page="analyze" data-scan-type="face">
+            <div class="scan-option-icon face">😊</div>
+            <div class="scan-option-text">
+              <div class="scan-option-title">Face Scan</div>
+              <div class="scan-option-desc">Facial aesthetics analysis</div>
+            </div>
+          </a>
+          <a href="#" class="scan-option" data-page="analyze" data-scan-type="body">
+            <div class="scan-option-icon body">🏋️</div>
+            <div class="scan-option-text">
+              <div class="scan-option-title">Body Scan</div>
+              <div class="scan-option-desc">Physique & posture analysis</div>
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -1806,11 +2913,14 @@
         </div>
         <h1>Discover Your <span class="highlight">True Potential</span></h1>
         <p class="hero-description">
-          Get honest, calibrated facial analysis with your current score, realistic potential, and a clear action plan. No score inflation – just evidence-based insights.
+          Get honest, calibrated analysis of your face and body with your current score, realistic potential, and a clear action plan. No score inflation – just evidence-based insights.
         </p>
         <div class="hero-buttons">
-          <a href="#" data-page="analyze" class="btn btn-primary">
-            Start Free Analysis →
+          <a href="#" data-page="analyze" data-scan-type="face" class="btn btn-primary">
+            😊 Face Scan →
+          </a>
+          <a href="#" data-page="analyze" data-scan-type="body" class="btn btn-body">
+            🏋️ Body Scan →
           </a>
           <a href="#" data-page="how-it-works" class="btn btn-secondary">
             Learn More
@@ -1858,14 +2968,14 @@
                   <span class="feature-score">6.4</span>
                 </div>
                 <div class="feature-bar">
-                  <span class="feature-icon">👃</span>
+                  <span class="feature-icon">💪</span>
                   <div class="feature-track">
                     <div class="feature-fill" style="--width: 61%; --delay: 3; background: linear-gradient(90deg, var(--success), #34d399);"></div>
                   </div>
                   <span class="feature-score">6.1</span>
                 </div>
                 <div class="feature-bar">
-                  <span class="feature-icon">💪</span>
+                  <span class="feature-icon">🏋️</span>
                   <div class="feature-track">
                     <div class="feature-fill" style="--width: 50%; --delay: 4; background: linear-gradient(90deg, var(--warning), #fbbf24);"></div>
                   </div>
@@ -1878,6 +2988,40 @@
       </div>
     </div>
   </section>
+
+  <!-- Scan Type Selector -->
+  <section class="scan-selector-section">
+    <div class="scan-selector-container">
+      <div class="scan-selector-header">
+        <h2>Choose Your Analysis</h2>
+        <p>Get personalized insights and actionable improvement plans</p>
+      </div>
+      <div class="scan-cards">
+        <div class="scan-card face" data-page="analyze" data-scan-type="face">
+          <div class="scan-card-icon">😊</div>
+          <h3>Face Analyzer</h3>
+          <p>Detailed facial aesthetics analysis with feature breakdowns and grooming tips.</p>
+          <ul class="scan-card-features">
+            <li>Overall rating /10</li>
+            <li>Feature breakdown (eyes, jaw, skin...)</li>
+            <li>Top 3 improvement levers</li>
+            <li>Actionable fixes with timelines</li>
+          </ul>
+        </div>
+        <div class="scan-card body" data-page="analyze" data-scan-type="body">
+          <div class="scan-card-icon">🏋️</div>
+          <h3>Body Analyzer</h3>
+          <p>Physique analysis with posture assessment and workout recommendations.</p>
+          <ul class="scan-card-features">
+            <li>Overall physique rating /10</li>
+            <li>V-taper, leanness, posture</li>
+            <li>Muscle balance assessment</li>
+            <li>Workout & nutrition plan</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
   </div>
 
   <!-- FEATURES PAGE -->
@@ -1885,9 +3029,9 @@
   <section class="features" id="features">
     <div class="section-header">
       <span class="section-label">Features</span>
-      <h2 class="section-title">Everything You Need for Facial Analysis</h2>
+      <h2 class="section-title">Complete Aesthetics Analysis</h2>
       <p class="section-description">
-        Powered by advanced AI to give you accurate, actionable insights about your facial features.
+        Powered by advanced AI to give you accurate, actionable insights about your face and body.
       </p>
     </div>
     <div class="features-grid">
@@ -1907,14 +3051,14 @@
         <p>Your highest-impact improvements ranked by delta, with realistic timelines (2-12 weeks).</p>
       </div>
       <div class="feature-card">
-        <div class="feature-card-icon">🔍</div>
-        <h3>Evidence-Based</h3>
-        <p>Every score includes "why" – specific visible cues, not vague compliments or generic feedback.</p>
+        <div class="feature-card-icon">😊</div>
+        <h3>Face Analysis</h3>
+        <p>Detailed breakdown of eyes, nose, lips, jawline, skin quality, and facial harmony.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-card-icon">⚖️</div>
-        <h3>Confidence Levels</h3>
-        <p>We tell you when we're uncertain. Missing side photo? Low lighting? We flag it honestly.</p>
+        <div class="feature-card-icon">🏋️</div>
+        <h3>Body Analysis</h3>
+        <p>V-taper ratio, posture assessment, muscle balance, and core presentation evaluation.</p>
       </div>
       <div class="feature-card">
         <div class="feature-card-icon">🔒</div>
@@ -1923,7 +3067,8 @@
       </div>
     </div>
     <div class="section-cta">
-      <a href="#" data-page="analyze" class="btn btn-primary">Try It Now →</a>
+      <a href="#" data-page="analyze" data-scan-type="face" class="btn btn-primary">Try Face Scan →</a>
+      <a href="#" data-page="analyze" data-scan-type="body" class="btn btn-body" style="margin-left: 1rem;">Try Body Scan →</a>
     </div>
   </section>
   </div>
@@ -1935,7 +3080,7 @@
       <span class="section-label">How It Works</span>
       <h2 class="section-title">Three Simple Steps</h2>
       <p class="section-description">
-        Get your personalized facial analysis in under 60 seconds.
+        Get your personalized analysis in under 60 seconds.
       </p>
     </div>
     <div class="steps">
@@ -1943,14 +3088,14 @@
         <div class="step-number">1</div>
         <div class="step-content">
           <h3>Upload Your Photos</h3>
-          <p>Upload a front-facing photo and optional side profile. Our guide helps you get the perfect shot.</p>
+          <p>Upload a front-facing photo and optional side profile for face analysis, or full-body front and side photos for body analysis.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-number">2</div>
         <div class="step-content">
           <h3>AI Analysis</h3>
-          <p>Our advanced AI analyzes your facial features, proportions, and harmony in seconds, comparing against aesthetic guidelines.</p>
+          <p>Our advanced AI analyzes your features, proportions, and posture in seconds, comparing against aesthetic guidelines.</p>
         </div>
       </div>
       <div class="step">
@@ -1962,7 +3107,8 @@
       </div>
     </div>
     <div class="section-cta">
-      <a href="#" data-page="analyze" class="btn btn-primary">Start Your Analysis →</a>
+      <a href="#" data-page="analyze" data-scan-type="face" class="btn btn-primary">Start Face Analysis →</a>
+      <a href="#" data-page="analyze" data-scan-type="body" class="btn btn-body" style="margin-left: 1rem;">Start Body Analysis →</a>
     </div>
   </section>
   </div>
@@ -1973,8 +3119,27 @@
   <section class="upload-section" id="upload">
     <div class="upload-container">
       <div class="upload-header">
-        <h2>📷 Upload Your Photos</h2>
-        <p>Get your personalized facial analysis in seconds</p>
+        <h2 id="upload-title">📷 Upload Your Photos</h2>
+        <p id="upload-subtitle">Get your personalized analysis in seconds</p>
+      </div>
+
+      <!-- Scan Type Toggle -->
+      <div class="scan-type-toggle">
+        <button class="scan-type-btn face active" data-scan-type="face">😊 Face Scan</button>
+        <button class="scan-type-btn body" data-scan-type="body">🏋️ Body Scan</button>
+      </div>
+
+      <!-- Body Photo Tips (only show for body) -->
+      <div class="body-photo-tips hidden" id="body-photo-tips">
+        <h4>📸 Tips for best body photos</h4>
+        <ul>
+          <li>Step back - include head to feet</li>
+          <li>Neutral stance, arms at sides</li>
+          <li>Form-fitting clothing works best</li>
+          <li>Good, consistent lighting</li>
+          <li>Side photo shows posture better</li>
+          <li>No baggy clothes or heavy layers</li>
+        </ul>
       </div>
 
       <div class="upload-grid">
@@ -1982,9 +3147,9 @@
           <input type="file" id="front-input" accept="image/*">
           <div class="upload-content" id="front-content">
             <div class="upload-box-icon">📸</div>
-            <h3>Front Photo</h3>
+            <h3 id="front-title">Front Photo</h3>
             <p class="required">* Required</p>
-            <p>Face the camera directly with neutral expression</p>
+            <p id="front-desc">Face the camera directly with neutral expression</p>
           </div>
         </div>
 
@@ -1992,10 +3157,41 @@
           <input type="file" id="side-input" accept="image/*">
           <div class="upload-content" id="side-content">
             <div class="upload-box-icon">📷</div>
-            <h3>Side Profile</h3>
-            <p class="optional">Optional</p>
-            <p>For more accurate jawline and chin analysis</p>
+            <h3 id="side-title">Side Profile</h3>
+            <p class="optional">Recommended</p>
+            <p id="side-desc">For more accurate jawline and chin analysis</p>
           </div>
+        </div>
+      </div>
+
+      <!-- Optional inputs for body scan -->
+      <div class="optional-inputs hidden" id="body-optional-inputs">
+        <div class="optional-input">
+          <label>Height (optional)</label>
+          <input type="text" id="height-input" placeholder="e.g., 5'10&quot; or 178cm">
+        </div>
+        <div class="optional-input">
+          <label>Weight (optional)</label>
+          <input type="text" id="weight-input" placeholder="e.g., 170lbs or 77kg">
+        </div>
+        <div class="optional-input">
+          <label>Gym Access</label>
+          <select id="gym-input">
+            <option value="">Select...</option>
+            <option value="yes">Yes - Full gym</option>
+            <option value="limited">Limited equipment</option>
+            <option value="no">No gym access</option>
+          </select>
+        </div>
+        <div class="optional-input">
+          <label>Goal</label>
+          <select id="goal-input">
+            <option value="">Select...</option>
+            <option value="lean">Get lean</option>
+            <option value="bulk">Build muscle</option>
+            <option value="recomp">Recomposition</option>
+            <option value="maintain">Maintain</option>
+          </select>
         </div>
       </div>
 
@@ -2017,8 +3213,43 @@
   <!-- Results Section -->
   <section class="results-section" id="results">
     <div class="results-container">
-      <div class="results-header">
+      <div class="results-header" id="results-header">
         <h2>✨ Your Analysis Results</h2>
+      </div>
+
+      <!-- Results Tabs -->
+      <div class="results-tabs">
+        <button class="results-tab active" data-tab="overview">📊 Overview</button>
+        <button class="results-tab" data-tab="plan">📋 14-Day Plan</button>
+        <button class="results-tab" data-tab="style">💇 Style Guide</button>
+        <button class="results-tab" data-tab="progress">📈 Progress</button>
+      </div>
+
+      <!-- TAB: Overview -->
+      <div class="results-tab-content active" id="tab-overview">
+
+      <!-- Retake Guidance (shown if photo quality is poor) -->
+      <div class="retake-guidance hidden" id="retake-guidance">
+        <h4>📸 Better photos = better results</h4>
+        <div class="retake-tips">
+          <div class="retake-tip">
+            <span class="retake-tip-icon">💡</span>
+            <span>Face natural light (window)</span>
+          </div>
+          <div class="retake-tip">
+            <span class="retake-tip-icon">📏</span>
+            <span>Camera at eye level</span>
+          </div>
+          <div class="retake-tip">
+            <span class="retake-tip-icon">😐</span>
+            <span>Neutral expression</span>
+          </div>
+          <div class="retake-tip">
+            <span class="retake-tip-icon">🎯</span>
+            <span>Center your face</span>
+          </div>
+        </div>
+        <button class="retake-btn" onclick="handleRetake()">📷 Retake for better accuracy</button>
       </div>
 
       <!-- Photo Quality Warnings -->
@@ -2032,7 +3263,7 @@
         </div>
       </div>
 
-      <div class="overall-score">
+      <div class="overall-score" id="overall-score-section">
         <!-- Dual Score Display -->
         <div class="dual-score-container">
           <div class="score-circle" id="current-score-circle">
@@ -2088,6 +3319,14 @@
         </div>
       </div>
 
+      <!-- Delta Breakdown -->
+      <div class="delta-breakdown" id="delta-breakdown">
+        <h4>📈 Your Improvement Potential Breakdown</h4>
+        <div id="delta-items">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
       <!-- Top 3 Levers -->
       <div class="top-levers">
         <div class="top-levers-header">
@@ -2109,12 +3348,157 @@
         <!-- Features will be populated by JS -->
       </div>
 
-      <div class="top-fixes">
+      <div class="top-fixes" id="top-fixes-section">
         <h3>🛠️ All Improvement Opportunities</h3>
         <div id="fixes-container">
           <!-- Fixes will be populated by JS -->
         </div>
       </div>
+
+      </div><!-- End TAB: Overview -->
+
+      <!-- TAB: 14-Day Plan -->
+      <div class="results-tab-content" id="tab-plan">
+        <div class="action-plan">
+          <div class="action-plan-header">
+            <h3>📋 Your 14-Day Glow Up Plan <span>Auto-generated from your scan</span></h3>
+            <div class="streak-badge">
+              <span class="fire">🔥</span>
+              <span class="streak-count" id="streak-count">0</span>
+              <span class="streak-label">day streak</span>
+            </div>
+          </div>
+
+          <div class="day-selector" id="day-selector">
+            <!-- Days 1-14 populated by JS -->
+          </div>
+
+          <div class="daily-checklist">
+            <div class="checklist-header">
+              <h4 id="checklist-day-title">Day 1 Tasks</h4>
+              <span class="checklist-progress" id="checklist-progress">0/6 completed</span>
+            </div>
+            <div id="checklist-items">
+              <!-- Checklist items populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <div class="weekly-recap">
+          <h4>📊 Weekly Progress</h4>
+          <div class="recap-stats">
+            <div class="recap-stat">
+              <div class="recap-stat-value" id="tasks-completed">0</div>
+              <div class="recap-stat-label">Tasks Done</div>
+            </div>
+            <div class="recap-stat">
+              <div class="recap-stat-value" id="streak-days">0</div>
+              <div class="recap-stat-label">Day Streak</div>
+            </div>
+            <div class="recap-stat">
+              <div class="recap-stat-value" id="consistency-pct">0%</div>
+              <div class="recap-stat-label">Consistency</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- End TAB: Plan -->
+
+      <!-- TAB: Style Guide -->
+      <div class="results-tab-content" id="tab-style">
+        <div class="style-engine">
+          <h3>💇 Your Personalized Style Guide</h3>
+
+          <div class="style-tabs">
+            <button class="style-tab active" data-style="haircut">💇 Haircuts</button>
+            <button class="style-tab" data-style="brows">🎯 Brows</button>
+            <button class="style-tab" data-style="facial-hair">🧔 Facial Hair</button>
+            <button class="style-tab" data-style="glasses">👓 Glasses</button>
+            <button class="style-tab" data-style="skin">✨ Skin Routine</button>
+          </div>
+
+          <!-- Haircuts -->
+          <div class="style-content active" id="style-haircut">
+            <div class="style-grid" id="haircut-recommendations">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Brows -->
+          <div class="style-content" id="style-brows">
+            <div class="style-grid" id="brow-recommendations">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Facial Hair -->
+          <div class="style-content" id="style-facial-hair">
+            <div class="style-grid" id="facial-hair-recommendations">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Glasses -->
+          <div class="style-content" id="style-glasses">
+            <div class="style-grid" id="glasses-recommendations">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Skin Routine -->
+          <div class="style-content" id="style-skin">
+            <div class="skin-routine" id="am-routine">
+              <div class="routine-time">☀️ Morning Routine</div>
+              <ol class="routine-steps" id="am-routine-steps">
+                <!-- Populated by JS -->
+              </ol>
+            </div>
+            <div class="skin-routine" style="margin-top: 1rem;" id="pm-routine">
+              <div class="routine-time">🌙 Night Routine</div>
+              <ol class="routine-steps" id="pm-routine-steps">
+                <!-- Populated by JS -->
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div><!-- End TAB: Style -->
+
+      <!-- TAB: Progress -->
+      <div class="results-tab-content" id="tab-progress">
+        <div class="progress-section">
+          <div class="progress-header">
+            <h3>📈 Your Progress Journey</h3>
+            <button class="save-progress-btn" id="save-progress-btn">💾 Save This Scan</button>
+          </div>
+
+          <div class="progress-gallery" id="progress-gallery">
+            <!-- Populated by JS or show empty state -->
+          </div>
+
+          <div class="progress-empty hidden" id="progress-empty">
+            <p>📷 No progress photos yet</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Save this scan to start tracking your glow up journey!</p>
+          </div>
+
+          <div class="compare-mode hidden" id="compare-mode">
+            <h4>🔄 Before & After Comparison</h4>
+            <div class="compare-slider-container" id="compare-container">
+              <img src="" alt="Before" class="before-image" id="compare-before">
+              <img src="" alt="After" class="after-image" id="compare-after">
+              <div class="compare-slider" id="compare-slider"></div>
+            </div>
+            <div class="compare-labels">
+              <span>Before</span>
+              <span>After</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1rem;">
+          <p style="color: var(--text-muted); font-size: 0.9rem;">
+            💡 Tip: Re-scan weekly to track your progress. Use the same lighting and angle for best comparison.
+          </p>
+        </div>
+      </div><!-- End TAB: Progress -->
 
       <button class="new-scan-btn" id="new-scan-btn">
         📷 Start New Analysis
@@ -2124,8 +3508,8 @@
 
   <!-- Loading Overlay -->
   <div class="loading-overlay hidden" id="loading">
-    <div class="loading-spinner"></div>
-    <p class="loading-text">Analyzing your features...</p>
+    <div class="loading-spinner" id="loading-spinner"></div>
+    <p class="loading-text" id="loading-text">Analyzing your features...</p>
     <p class="loading-subtext">This usually takes 10-20 seconds</p>
   </div>
   </div>
@@ -2133,16 +3517,23 @@
   <footer>
     <div class="footer-content">
       <div class="footer-logo">
-        <span>✨</span> Face Analyzer
+        <span>✨</span> Aesthetics Analyzer
       </div>
       <p class="footer-text">
-        AI-powered facial aesthetics analysis. Results are estimates based on general guidelines.<br>
-        © 2026 Face Analyzer. Built for demonstration purposes.
+        AI-powered face and body aesthetics analysis. Results are estimates based on general guidelines.<br>
+        © 2026 Aesthetics Analyzer. Built for demonstration purposes.
       </p>
     </div>
   </footer>
 
   <script>
+    // State
+    let frontImage = null;
+    let sideImage = null;
+    let selectedGender = 'male';
+    let currentScanType = 'face'; // 'face' or 'body'
+    const API_URL = 'http://localhost:3001';
+
     // Scroll to top on page load
     window.onload = function() {
       window.scrollTo(0, 0);
@@ -2151,7 +3542,7 @@
     };
 
     // Page Navigation System
-    function showPage(pageName) {
+    function showPage(pageName, scanType = null) {
       // Hide all pages
       document.querySelectorAll('.page-section').forEach(section => {
         section.classList.remove('active');
@@ -2171,6 +3562,65 @@
           link.classList.add('active');
         }
       });
+
+      // If going to analyze page with scan type, set it
+      if (pageName === 'analyze' && scanType) {
+        setScanType(scanType);
+      }
+    }
+
+    // Set scan type (face or body)
+    function setScanType(type) {
+      currentScanType = type;
+      
+      // Update toggle buttons
+      document.querySelectorAll('.scan-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.scanType === type) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Update UI based on scan type
+      const uploadTitle = document.getElementById('upload-title');
+      const uploadSubtitle = document.getElementById('upload-subtitle');
+      const frontTitle = document.getElementById('front-title');
+      const frontDesc = document.getElementById('front-desc');
+      const sideTitle = document.getElementById('side-title');
+      const sideDesc = document.getElementById('side-desc');
+      const analyzeBtn = document.getElementById('analyze-btn');
+      const bodyTips = document.getElementById('body-photo-tips');
+      const bodyInputs = document.getElementById('body-optional-inputs');
+      const frontUpload = document.getElementById('front-upload');
+      const sideUpload = document.getElementById('side-upload');
+
+      if (type === 'body') {
+        uploadTitle.textContent = '🏋️ Upload Your Body Photos';
+        uploadSubtitle.textContent = 'Get your personalized physique analysis';
+        frontTitle.textContent = 'Front Body Photo';
+        frontDesc.textContent = 'Stand straight, arms relaxed, head to feet visible';
+        sideTitle.textContent = 'Side Body Photo';
+        sideDesc.textContent = 'For posture and profile assessment';
+        analyzeBtn.textContent = '🏋️ Analyze My Body';
+        analyzeBtn.classList.add('body-mode');
+        bodyTips.classList.remove('hidden');
+        bodyInputs.classList.remove('hidden');
+        frontUpload.classList.add('body-mode');
+        sideUpload.classList.add('body-mode');
+      } else {
+        uploadTitle.textContent = '📷 Upload Your Photos';
+        uploadSubtitle.textContent = 'Get your personalized facial analysis';
+        frontTitle.textContent = 'Front Photo';
+        frontDesc.textContent = 'Face the camera directly with neutral expression';
+        sideTitle.textContent = 'Side Profile';
+        sideDesc.textContent = 'For more accurate jawline and chin analysis';
+        analyzeBtn.textContent = '✨ Analyze My Face';
+        analyzeBtn.classList.remove('body-mode');
+        bodyTips.classList.add('hidden');
+        bodyInputs.classList.add('hidden');
+        frontUpload.classList.remove('body-mode');
+        sideUpload.classList.remove('body-mode');
+      }
     }
 
     // Add click handlers to navigation
@@ -2179,7 +3629,8 @@
       document.querySelectorAll('[data-page]').forEach(link => {
         link.addEventListener('click', function(e) {
           e.preventDefault();
-          showPage(this.dataset.page);
+          const scanType = this.dataset.scanType || null;
+          showPage(this.dataset.page, scanType);
         });
       });
 
@@ -2188,13 +3639,22 @@
         e.preventDefault();
         showPage('home');
       });
-    });
 
-    // State
-    let frontImage = null;
-    let sideImage = null;
-    let selectedGender = 'male';
-    const API_URL = 'http://localhost:3001';
+      // Scan type toggle buttons
+      document.querySelectorAll('.scan-type-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          setScanType(this.dataset.scanType);
+        });
+      });
+
+      // Scan cards on home page
+      document.querySelectorAll('.scan-card').forEach(card => {
+        card.addEventListener('click', function() {
+          const scanType = this.dataset.scanType;
+          showPage('analyze', scanType);
+        });
+      });
+    });
 
     // DOM Elements
     const frontUpload = document.getElementById('front-upload');
@@ -2237,11 +3697,14 @@
         box.classList.add('has-image');
       } else {
         const isRequired = type === 'front';
+        const isBody = currentScanType === 'body';
         content.innerHTML = `
           <div class="upload-box-icon">${type === 'front' ? '📸' : '📷'}</div>
-          <h3>${type === 'front' ? 'Front Photo' : 'Side Profile'}</h3>
-          <p class="${isRequired ? 'required' : 'optional'}">${isRequired ? '* Required' : 'Optional'}</p>
-          <p>${type === 'front' ? 'Face the camera directly with neutral expression' : 'For more accurate jawline and chin analysis'}</p>
+          <h3>${isBody ? (type === 'front' ? 'Front Body Photo' : 'Side Body Photo') : (type === 'front' ? 'Front Photo' : 'Side Profile')}</h3>
+          <p class="${isRequired ? 'required' : 'optional'}">${isRequired ? '* Required' : 'Recommended'}</p>
+          <p>${isBody 
+            ? (type === 'front' ? 'Stand straight, arms relaxed, head to feet visible' : 'For posture and profile assessment')
+            : (type === 'front' ? 'Face the camera directly with neutral expression' : 'For more accurate jawline and chin analysis')}</p>
         `;
         box.classList.remove('has-image');
       }
@@ -2297,13 +3760,22 @@
       });
     });
 
-    // Analyze face
+    // Analyze
     analyzeBtn.addEventListener('click', async () => {
       if (!frontImage) return;
 
+      const loadingSpinner = document.getElementById('loading-spinner');
+      const loadingText = document.getElementById('loading-text');
+
       loadingOverlay.classList.remove('hidden');
-      document.querySelector('.loading-text').textContent = 'Analyzing your features...';
-      document.querySelector('.loading-subtext').textContent = 'This usually takes 10-20 seconds';
+      
+      if (currentScanType === 'body') {
+        loadingSpinner.classList.add('body-mode');
+        loadingText.textContent = 'Analyzing your physique...';
+      } else {
+        loadingSpinner.classList.remove('body-mode');
+        loadingText.textContent = 'Analyzing your features...';
+      }
 
       try {
         // First check if server is reachable
@@ -2316,20 +3788,33 @@
           throw new Error('SERVER_OFFLINE');
         }
 
-        document.querySelector('.loading-text').textContent = 'AI is analyzing your face...';
-        document.querySelector('.loading-subtext').textContent = 'Examining features, proportions, and harmony';
+        loadingText.textContent = currentScanType === 'body' 
+          ? 'AI is analyzing your physique...' 
+          : 'AI is analyzing your face...';
 
-        const response = await fetch(`${API_URL}/api/face/analyze`, {
+        const endpoint = currentScanType === 'body' ? '/api/body/analyze' : '/api/face/analyze';
+        
+        const requestBody = {
+          frontImage,
+          sideImage,
+          gender: selectedGender,
+          premiumEnabled: false,
+        };
+
+        // Add body-specific inputs
+        if (currentScanType === 'body') {
+          requestBody.height = document.getElementById('height-input').value;
+          requestBody.weight = document.getElementById('weight-input').value;
+          requestBody.gymAccess = document.getElementById('gym-input').value;
+          requestBody.goal = document.getElementById('goal-input').value;
+        }
+
+        const response = await fetch(`${API_URL}${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            frontImage,
-            sideImage,
-            gender: selectedGender,
-            premiumEnabled: false,
-          }),
+          body: JSON.stringify(requestBody),
         });
 
         if (!response.ok) {
@@ -2348,10 +3833,10 @@
         
         if (error.message === 'SERVER_OFFLINE') {
           alert('⚠️ The analysis server is not running.\n\nTo start it, run this command in terminal:\n\ncd server && npm start\n\nThen try again!');
-        } else if (error.message.includes('API key not configured') || error.message.includes('ANTHROPIC_API_KEY')) {
-          alert('🔑 API Key Required\n\nTo use real AI face analysis, you need to:\n\n1. Get an API key from:\n   https://console.anthropic.com/\n\n2. Create a file: server/.env\n\n3. Add this line:\n   ANTHROPIC_API_KEY=your_key_here\n\n4. Restart the server:\n   cd server && npm start');
-        } else if (error.message.includes('No face detected') || error.message.includes("doesn't appear to be a face")) {
-          alert('🙈 No Face Detected\n\n' + error.message + '\n\nPlease upload a clear, front-facing photo of a human face.');
+        } else if (error.message.includes('API key not configured') || error.message.includes('GEMINI_API_KEY')) {
+          alert('🔑 API Key Required\n\nTo use real AI analysis, you need to:\n\n1. Get a FREE API key from:\n   https://aistudio.google.com/apikey\n\n2. Create a file: server/.env\n\n3. Add this line:\n   GEMINI_API_KEY=your_key_here\n\n4. Restart the server:\n   cd server && npm start');
+        } else if (error.message.includes('No face detected') || error.message.includes("doesn't appear to be")) {
+          alert('🙈 Image Issue\n\n' + error.message + '\n\nPlease upload a clear photo.');
         } else {
           alert(`❌ Analysis failed: ${error.message}\n\nPlease make sure the server is running and try again.`);
         }
@@ -2380,17 +3865,34 @@
       return 'Exceptional';
     }
 
-    // Display results with new honest scoring model
+    // Display results
     function displayResults(data, isDemo = false) {
       uploadSection.classList.add('hidden');
       resultsSection.classList.add('visible');
 
-      // Update header based on whether it's real or demo
-      const resultsHeader = document.querySelector('.results-header h2');
+      const isBody = currentScanType === 'body';
+      const resultsHeader = document.getElementById('results-header');
+      const overallSection = document.getElementById('overall-score-section');
+      const topFixesSection = document.getElementById('top-fixes-section');
+
+      // Update header based on scan type
       if (isDemo) {
-        resultsHeader.innerHTML = '⚠️ Demo Results (Server Offline)';
+        resultsHeader.innerHTML = `<h2>⚠️ Demo Results (Server Offline)</h2>`;
       } else {
-        resultsHeader.innerHTML = '✨ Your Analysis Results';
+        resultsHeader.innerHTML = isBody 
+          ? `<h2>🏋️ Your Body Analysis Results</h2>` 
+          : `<h2>✨ Your Face Analysis Results</h2>`;
+      }
+
+      // Add body mode classes
+      if (isBody) {
+        resultsHeader.classList.add('body-mode');
+        overallSection.classList.add('body-mode');
+        topFixesSection.classList.add('body-mode');
+      } else {
+        resultsHeader.classList.remove('body-mode');
+        overallSection.classList.remove('body-mode');
+        topFixesSection.classList.remove('body-mode');
       }
 
       // Photo quality warnings
@@ -2401,9 +3903,12 @@
           side_missing: 'Side photo missing',
           too_dark: 'Lighting too dark',
           too_bright: 'Overexposed',
-          angle_distortion: 'Selfie angle distortion',
+          angle_distortion: 'Angle distortion',
           blurry: 'Image blurry',
-          inconsistent_lighting: 'Uneven lighting'
+          inconsistent_lighting: 'Uneven lighting',
+          not_full_body: 'Not full body visible',
+          baggy_clothes: 'Clothing too loose',
+          pose_inconsistent: 'Inconsistent pose'
         };
         document.getElementById('photo-quality-issues').innerHTML = 
           data.photoQuality.issues.map(issue => 
@@ -2427,10 +3932,10 @@
       currentCircle.style.setProperty('--score-color', currentColor);
       potentialCircle.style.setProperty('--score-color', potentialColor);
 
-      // Reset animations by removing and re-adding class
+      // Reset animations
       currentCircle.style.animation = 'none';
       potentialCircle.style.animation = 'none';
-      currentCircle.offsetHeight; // Trigger reflow
+      currentCircle.offsetHeight;
       potentialCircle.offsetHeight;
       currentCircle.style.animation = '';
       potentialCircle.style.animation = '';
@@ -2445,29 +3950,24 @@
       // Animate the ring filling and score counting
       const animationDuration = 2000;
       const startTime = Date.now();
-      const ringDelay = 1500; // Wait for spin animation
+      const ringDelay = 1500;
 
       setTimeout(() => {
         function animateScores() {
           const elapsed = Date.now() - startTime - ringDelay;
           const progress = Math.min(elapsed / animationDuration, 1);
-          
-          // Easing function (ease-out cubic)
           const easedProgress = 1 - Math.pow(1 - progress, 3);
 
-          // Update current score
           const displayedCurrentScore = currentScore * easedProgress;
           document.getElementById('current-score').textContent = displayedCurrentScore.toFixed(1);
           currentCircle.style.setProperty('--score-progress', displayedCurrentScore);
 
-          // Update potential score (slightly delayed)
           const potentialProgress = Math.max(0, (progress - 0.1) / 0.9);
           const easedPotentialProgress = potentialProgress > 0 ? 1 - Math.pow(1 - potentialProgress, 3) : 0;
           const displayedPotentialScore = potentialScore * easedPotentialProgress;
           document.getElementById('potential-score').textContent = displayedPotentialScore.toFixed(1);
           potentialCircle.style.setProperty('--score-progress', displayedPotentialScore);
 
-          // Update gain
           const displayedGain = (displayedPotentialScore - displayedCurrentScore);
           if (displayedGain > 0) {
             document.getElementById('gain-value').textContent = `+${displayedGain.toFixed(1)}`;
@@ -2476,7 +3976,6 @@
           if (progress < 1) {
             requestAnimationFrame(animateScores);
           } else {
-            // Final values
             document.getElementById('current-score').textContent = currentScore.toFixed(1);
             document.getElementById('potential-score').textContent = potentialScore.toFixed(1);
             document.getElementById('gain-value').textContent = `+${gain.toFixed(1)}`;
@@ -2491,7 +3990,6 @@
       document.getElementById('potential-context').textContent = getScoreContext(potentialScore);
       document.getElementById('score-summary').textContent = data.overall.summary;
 
-      // Calibration note
       if (data.overall.calibrationNote) {
         document.getElementById('calibration-note').textContent = data.overall.calibrationNote;
       }
@@ -2505,7 +4003,7 @@
 
       // Top 3 Levers
       const leversContainer = document.getElementById('levers-container');
-      const top3Levers = data.potential?.top3Levers || [];
+      const top3Levers = data.potential?.top3Levers || data.topLevers || [];
       const totalGain = data.potential?.totalPossibleGain || gain;
       
       document.getElementById('total-gain').textContent = `+${totalGain.toFixed(1)}`;
@@ -2514,15 +4012,16 @@
       leversContainer.innerHTML = top3Levers.map((lever, idx) => {
         const priorityClass = ['p1', 'p2', 'p3'][idx];
         const barColor = ['var(--success)', 'var(--warning)', 'var(--primary)'][idx];
-        const barWidth = totalGain > 0 ? (lever.delta / totalGain) * 100 : 33;
+        const barWidth = totalGain > 0 ? ((lever.delta || 0.3) / totalGain) * 100 : 33;
+        const leverTitle = lever.lever || lever.title || 'Improvement';
         return `
           <div class="lever-item">
             <div class="lever-priority ${priorityClass}">#${idx + 1}</div>
             <div class="lever-content">
-              <div class="lever-name">${lever.lever}</div>
+              <div class="lever-name">${leverTitle}</div>
               <div class="lever-meta">
-                <span class="lever-delta">+${lever.delta.toFixed(1)}</span>
-                <span class="lever-timeline">${lever.timeline}</span>
+                <span class="lever-delta">+${(lever.delta || 0.3).toFixed(1)}</span>
+                <span class="lever-timeline">${lever.timeline || '4-8 weeks'}</span>
               </div>
             </div>
             <div class="lever-bar" style="width: ${barWidth}%; background: ${barColor};"></div>
@@ -2530,16 +4029,17 @@
         `;
       }).join('');
 
-      // Features with honest scores
+      // Features
       const featuresContainer = document.getElementById('features-results');
-      featuresContainer.innerHTML = data.features.map(feature => {
+      const features = data.features || [];
+      featuresContainer.innerHTML = features.map(feature => {
         const featureColor = getScoreColor(feature.rating10);
-        const holdingBack = feature.holdingBack || feature.imperfections || [];
+        const holdingBack = feature.holdingBack || feature.limitations || feature.imperfections || [];
         const confidenceIcon = feature.confidence === 'high' ? '🟢' : feature.confidence === 'low' ? '🟡' : '🔵';
         return `
-          <div class="feature-result-card">
+          <div class="feature-result-card ${isBody ? 'body-mode' : ''}">
             <div class="feature-result-header">
-              <span class="feature-result-name">${feature.label}</span>
+              <span class="feature-result-name">${feature.label || feature.key}</span>
               <span class="feature-result-score" style="color: ${featureColor}">${feature.rating10.toFixed(1)}/10</span>
             </div>
             <div class="feature-result-bar">
@@ -2555,7 +4055,7 @@
         `;
       }).join('');
 
-      // All improvement deltas (instead of topFixes)
+      // All improvement deltas
       const fixesContainer = document.getElementById('fixes-container');
       const deltas = data.potential?.deltas || data.topFixes || [];
       
@@ -2565,11 +4065,11 @@
           <div class="fix-item">
             <div class="fix-header">
               <span class="fix-title">${delta.lever || delta.title}</span>
-              <span class="fix-impact high">+${delta.delta?.toFixed(1) || '0.5'}</span>
+              <span class="fix-impact high">+${(delta.delta || 0.3).toFixed(1)}</span>
             </div>
-            <p class="fix-why">${delta.currentIssue || delta.potentialGain || delta.why}</p>
+            <p class="fix-why">${delta.currentIssue || delta.why || delta.potentialGain || ''}</p>
             <div style="display: flex; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.85rem;">
-              <span style="color: var(--text-muted);">⏱️ ${delta.timeline}</span>
+              <span style="color: var(--text-muted);">⏱️ ${delta.timeline || '4-8 weeks'}</span>
               ${delta.difficulty ? `<span style="color: ${difficultyColors[delta.difficulty] || 'var(--text-muted)'};">${delta.difficulty}</span>` : ''}
             </div>
             <ul class="fix-steps">
@@ -2579,7 +4079,6 @@
         `;
       }).join('');
 
-      // Scroll to results
       resultsSection.scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -2595,121 +4094,6 @@
       uploadSection.classList.remove('hidden');
       window.scrollTo(0, 0);
     });
-
-    // Mock results for demo/offline mode - HONEST SCORING MODEL
-    function getMockResults() {
-      return {
-        photoQuality: {
-          score: 75,
-          issues: ['side_missing', 'inconsistent_lighting'],
-          assessmentLimitations: ['Chin projection cannot be accurately assessed without side profile']
-        },
-        overall: {
-          currentScore10: 5.4,
-          potentialScore10: 6.8,
-          confidence: 'medium',
-          summary: 'You have solid bone structure with good cheekbone projection. Main opportunities for improvement are in skin clarity, under-eye area, and hair styling - all achievable without surgery.',
-          calibrationNote: 'Scores use realistic distribution where 5.5 is average. A 6.8 potential puts you in the top 25% with consistent effort.'
-        },
-        potential: {
-          totalPossibleGain: 1.4,
-          deltas: [
-            {
-              lever: 'Skincare routine',
-              currentIssue: 'Visible texture in T-zone, slight redness',
-              delta: 0.5,
-              potentialGain: 'Clearer, more even complexion',
-              timeline: '8-12 weeks',
-              difficulty: 'easy',
-              steps: ['Start retinol 2x/week', 'Daily SPF 30+', 'Consistent hydration']
-            },
-            {
-              lever: 'Hair styling',
-              currentIssue: 'Style not optimized for face shape',
-              delta: 0.4,
-              potentialGain: 'Better face framing, more polished appearance',
-              timeline: '2 weeks',
-              difficulty: 'easy',
-              steps: ['Consult stylist for face-shape-appropriate cut', 'Use volumizing products at roots']
-            },
-            {
-              lever: 'Under-eye care',
-              currentIssue: 'Noticeable dark circles and mild puffiness',
-              delta: 0.3,
-              potentialGain: 'More refreshed, awake appearance',
-              timeline: '4-8 weeks',
-              difficulty: 'easy',
-              steps: ['Caffeine eye cream morning/night', 'Sleep 7-9hrs consistently', 'Reduce sodium']
-            },
-            {
-              lever: 'Posture correction',
-              currentIssue: 'Slight forward head position visible',
-              delta: 0.2,
-              potentialGain: 'Sharper jawline definition in photos',
-              timeline: '4-8 weeks',
-              difficulty: 'moderate',
-              steps: ['Chin tucks 3x daily', 'Ergonomic workspace setup']
-            }
-          ],
-          top3Levers: [
-            { lever: 'Skincare routine', delta: 0.5, timeline: '8-12 weeks', priority: 1 },
-            { lever: 'Hair styling', delta: 0.4, timeline: '2 weeks', priority: 2 },
-            { lever: 'Under-eye care', delta: 0.3, timeline: '4-8 weeks', priority: 3 }
-          ],
-          timelineToFullPotential: '10-14 weeks with consistent daily effort'
-        },
-        features: [
-          {
-            label: 'Skin Quality',
-            rating10: 5.2,
-            confidence: 'high',
-            evidence: 'Visible texture irregularity in T-zone, slight redness on cheeks, minor under-eye discoloration',
-            strengths: ['No active breakouts', 'Decent overall tone'],
-            holdingBack: ['T-zone texture/enlarged pores', 'Mild redness on cheeks']
-          },
-          {
-            label: 'Eye Area',
-            rating10: 5.8,
-            confidence: 'high',
-            evidence: 'Good eye shape and symmetry. Under-eye darkness and mild puffiness reducing score.',
-            strengths: ['Symmetric eye shape', 'Good palpebral fissure'],
-            holdingBack: ['Visible dark circles', 'Morning puffiness']
-          },
-          {
-            label: 'Nose',
-            rating10: 6.1,
-            confidence: 'medium',
-            evidence: 'Proportionate nose-to-face ratio. Slight dorsal irregularity visible in lighting.',
-            strengths: ['Good proportion to face width', 'Defined bridge'],
-            holdingBack: ['Minor dorsal bump visible at certain angles']
-          },
-          {
-            label: 'Lips',
-            rating10: 5.5,
-            confidence: 'high',
-            evidence: 'Average fullness and definition. Cupids bow present but not prominent.',
-            strengths: ['Symmetric shape', 'Natural color'],
-            holdingBack: ['Below-average fullness', 'Visible dryness']
-          },
-          {
-            label: 'Cheekbones',
-            rating10: 6.4,
-            confidence: 'medium',
-            evidence: 'Visible malar projection creating shadows. Above average bone structure.',
-            strengths: ['Good natural projection', 'Well-positioned height'],
-            holdingBack: ['Soft tissue coverage slightly reducing definition']
-          },
-          {
-            label: 'Jawline',
-            rating10: 5.0,
-            confidence: 'medium',
-            evidence: 'Jaw shape present but definition soft. Submental area shows fullness.',
-            strengths: ['Decent underlying bone structure'],
-            holdingBack: ['Soft definition', 'Forward head posture reducing angle']
-          }
-        ]
-      };
-    }
   </script>
 </body>
 </html>
