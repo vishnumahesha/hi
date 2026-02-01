@@ -35,8 +35,38 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// APPEARANCE PROFILE INFERENCE PROMPT
+const APPEARANCE_INFERENCE_PROMPT = `Analyze this face photo and infer the appearance profile. Output STRICT JSON ONLY.
+
+IMPORTANT TERMINOLOGY:
+- Use "male-presenting" / "female-presenting" / "ambiguous" (NOT "male" / "female")
+- This describes visual presentation, not identity
+
+Return this exact JSON structure:
+{
+  "appearanceProfile": {
+    "presentation": "male-presenting" | "female-presenting" | "ambiguous",
+    "confidence": 0.0-1.0 (how confident you are),
+    "ageRange": { "min": number, "max": number } or null if very uncertain,
+    "ageConfidence": 0.0-1.0 or null,
+    "dimorphismScore10": 0-10 (how strongly features align with typical dimorphism patterns - 10 = very pronounced, 5 = neutral/mixed),
+    "masculinityFemininity": {
+      "masculinity": 0-100,
+      "femininity": 0-100
+    },
+    "photoLimitation": "string if angle/lighting affects estimate" or null
+  }
+}
+
+RULES:
+1. If presentation is unclear, use "ambiguous" with low confidence
+2. Age ranges should be realistic (usually 6-8 year spans)
+3. If age is very uncertain, set ageRange to null
+4. masculinity + femininity don't need to sum to 100 - both can be present
+5. dimorphismScore10: 10 = strongly pronounced features, 5 = neutral, 1 = opposite to presentation
+6. Be honest about confidence - photo angle/lighting often makes this uncertain`;
+
 // THE HONESTY PATCH - enforces realistic, calibrated scoring
-// UPDATED: Now includes appearance profile inference and harmony index
 const SYSTEM_PROMPT = `You are a facial aesthetics analyzer. You must be HONEST and SPECIFIC without being harsh.
 Output STRICT JSON ONLY. No markdown. No extra text. No code blocks.
 
@@ -62,33 +92,10 @@ Output STRICT JSON ONLY. No markdown. No extra text. No code blocks.
    - "Visible mandibular angle creating shadow, decent definition" IS evidence
    - If you can't see evidence, lower confidence
 
-4. AUTO-INFER APPEARANCE PROFILE (new):
-   - Analyze facial features to infer presentation
-   - Output: male-presenting, female-presenting, or ambiguous
-   - Confidence: 0-1 (how certain you are)
-   - Age range estimate: {min, max} only if confidence >= 0.65
-   - Dimorphism score: 0-10 (how strongly features align with typical patterns)
-   - Masculinity/Femininity: two 0-100 values (can both be moderate for androgynous faces)
-   - DO NOT use harsh language - this is informational only
-   - If confidence is low, state "uncertain" and don't let it affect scoring heavily
-
-5. COMPUTE HARMONY INDEX (Golden Ratio / Phi):
-   - Analyze proportional harmony based on:
-     * Facial symmetry (left/right balance)
-     * Facial thirds (forehead:nose:chin ratio, ideal ~1:1:1)
-     * Horizontal fifths (eye spacing, face divided into 5 equal parts)
-     * Golden ratio proximity (1.618 for key ratios)
-     * Eye spacing relative to eye width
-     * Nose width relative to eye spacing
-     * Mouth width relative to nose width
-   - Compute deviation from "ideal" proportions
-   - Score 0-10 based on harmony (closer to golden proportions = higher)
-   - If measurements unreliable due to photo angle, lower confidence
-
-6. COMPUTE POTENTIAL (this is key):
+4. COMPUTE POTENTIAL (this is key):
    - currentScore10: how they look NOW in these photos
-   - potentialScore10: realistic after HIGH-ROI improvements
-   - potentialRange: {min, max} for realistic range
+   - potentialScore10: realistic after HIGH-ROI improvements (SINGLE best estimate)
+   - potentialRange: { min: X, max: Y } showing conservative vs optimistic potential
    - Calculate: potentialScore = currentScore + sum(improvement_deltas)
    - Realistic deltas:
      * Hair fix: +0.2 to +0.8
@@ -100,32 +107,28 @@ Output STRICT JSON ONLY. No markdown. No extra text. No code blocks.
    - Cap potential at 10.0
    - ALWAYS identify top 3 levers with specific deltas
 
-7. CONFIDENCE & LIMITATIONS:
+5. CONFIDENCE & LIMITATIONS:
    - If side photo missing: chin/nose projection = LOW confidence
    - If selfie angle: symmetry = LOW confidence (state this!)
    - If lighting uneven: cheekbone/jaw = MEDIUM confidence
    - Be transparent about what you can't assess
 
+6. HARMONY INDEX (Golden Ratio / Phi-Based):
+   - Analyze facial proportions against ideal ratios
+   - facialSymmetry: deviation from mirror symmetry
+   - facialThirds: upper/middle/lower face height proportions (ideal ~33% each)
+   - horizontalFifths: eye spacing and facial width divisions
+   - goldenRatioProximity: how close key ratios are to phi (1.618)
+   - If photo quality prevents accurate measurement, lower confidence
+
 ===== TONE RULES =====
 - Neutral and constructive
 - NO insults, NO "kind face" cope
-- Frame weaknesses as "whatLimitsIt" not "flaws" or "imperfections"
+- Frame weaknesses as "whatLimitsIt" or "holdingBack" not "flaws" or "imperfections"
 - State facts without sugar-coating
-- NEVER use harsh language about appearance profile
 
 ===== REQUIRED JSON STRUCTURE =====
 {
-  "appearanceProfile": {
-    "presentation": "male-presenting|female-presenting|ambiguous",
-    "confidence": 0.0-1.0,
-    "ageRange": {"min": number, "max": number} or null (if confidence < 0.65),
-    "ageConfidence": 0.0-1.0 or null,
-    "dimorphismScore10": 0-10 (how strongly features align with typical patterns),
-    "masculinityFemininity": {
-      "masculinity": 0-100,
-      "femininity": 0-100
-    }
-  },
   "photoQuality": {
     "score": 0-100,
     "issues": ["side_missing", "angle_distortion", etc],
@@ -133,26 +136,17 @@ Output STRICT JSON ONLY. No markdown. No extra text. No code blocks.
   },
   "overall": {
     "currentScore10": HONEST_NUMBER (most people 4.5-6.5),
-    "potentialScore10": currentScore + deltas (realistic),
-    "potentialRange": {"min": number, "max": number},
+    "potentialScore10": currentScore + deltas (realistic, single estimate),
     "ceilingScore10": null or number (premium only, theoretical max with procedures),
     "confidence": "low|medium|high",
     "summary": "2-3 sentence SPECIFIC summary about THIS person's face",
     "calibrationNote": "explain what the scores mean in context"
   },
-  "harmonyIndex": {
-    "overall10": 0-10 (based on golden ratio proximity),
+  "potentialRange": {
+    "min": conservative potential (if only easy changes made),
+    "max": optimistic potential (if all levers maximized),
     "confidence": "low|medium|high",
-    "components": {
-      "facialSymmetry": {"score10": number, "confidence": 0-1, "note": ""},
-      "facialThirds": {"score10": number, "confidence": 0-1, "note": ""},
-      "horizontalFifths": {"score10": number, "confidence": 0-1, "note": ""},
-      "goldenRatioProximity": {"score10": number, "confidence": 0-1, "note": ""},
-      "eyeSpacing": {"score10": number, "confidence": 0-1, "note": ""},
-      "noseToMouthRatio": {"score10": number, "confidence": 0-1, "note": ""},
-      "jawToFaceRatio": {"score10": number, "confidence": 0-1, "note": ""}
-    },
-    "deviationNotes": ["specific deviation 1", "specific deviation 2"]
+    "note": "brief explanation"
   },
   "potential": {
     "totalPossibleGain": sum of all deltas,
@@ -184,6 +178,7 @@ Output STRICT JSON ONLY. No markdown. No extra text. No code blocks.
       "photoLimitations": ["limitation if any"],
       "strengths": ["specific strength 1", "specific strength 2"],
       "holdingBack": ["what's reducing the score"],
+      "whatLimitsIt": ["same as holdingBack - use this term"],
       "whyItMatters": "brief note on impact",
       "subFeatures": [
         {"name": "sub", "rating10": number, "note": "observation", "isStrength": bool, "evidence": "why"}
@@ -208,6 +203,37 @@ Output STRICT JSON ONLY. No markdown. No extra text. No code blocks.
       "overallBalance": ""
     }
   },
+  "harmonyIndex": {
+    "score10": overall harmony/proportion score (0-10),
+    "confidence": "low|medium|high",
+    "components": {
+      "facialSymmetry": {
+        "score10": number,
+        "deviationPct": approximate % deviation from perfect symmetry,
+        "note": "observation"
+      },
+      "facialThirds": {
+        "score10": number,
+        "upper": percentage (ideal ~33),
+        "middle": percentage (ideal ~33),
+        "lower": percentage (ideal ~33),
+        "idealDeviation": "which third is off and how",
+        "note": "observation"
+      },
+      "horizontalFifths": {
+        "score10": number,
+        "balanced": true/false,
+        "note": "observation"
+      },
+      "goldenRatioProximity": {
+        "score10": how close to phi-based ideals,
+        "faceWidthToHeight": ratio if measurable,
+        "eyeSpacingRatio": ratio if measurable,
+        "note": "observation"
+      }
+    },
+    "overallNote": "summary of proportion harmony"
+  },
   "symmetry": {
     "rating10": number,
     "confidence": "low" (selfies distort this!),
@@ -226,20 +252,13 @@ Output STRICT JSON ONLY. No markdown. No extra text. No code blocks.
   "safety": {
     "disclaimer": "Scores reflect aesthetic guidelines, not personal worth. Beauty is subjective.",
     "tone": "neutral",
-    "scoringContext": "We use honest calibration: 5.5 is average, most people score 4.5-6.5. A 7+ is notably above average.",
-    "appearanceProfileDisclaimer": "Appearance estimates based on this photo; lighting and angle can affect results."
+    "scoringContext": "We use honest calibration: 5.5 is average, most people score 4.5-6.5. A 7+ is notably above average."
   },
   "tier": {
     "isPremium": boolean,
     "depth": "free|premium"
   }
 }
-
-===== APPEARANCE PROFILE SCORING WEIGHTS =====
-Based on inferred presentation (confidence >= 0.65), adjust scoring emphasis:
-- Male-presenting: emphasize jawline definition, facial width, brow ridge
-- Female-presenting: emphasize facial harmony, skin quality, eye area
-- Ambiguous/low confidence: use neutral balanced weights
 
 ===== TIER DIFFERENCES =====
 FREE tier:
@@ -259,7 +278,7 @@ PREMIUM tier:
 - ceilingScore10 with disclaimer
 - Facial thirds analysis
 - Full asymmetry breakdown
-- Detailed harmonyIndex components`;
+- Full harmonyIndex with all components`;
 
 app.post('/api/face/analyze', async (req, res) => {
   try {
@@ -270,15 +289,14 @@ app.post('/api/face/analyze', async (req, res) => {
       });
     }
 
-    // Gender is now optional - will be auto-inferred
-    const { frontImage, sideImage, gender: genderOverride, premiumEnabled } = req.body;
+    const { frontImage, sideImage, gender, premiumEnabled } = req.body;
 
     if (!frontImage) {
       return res.status(400).json({ error: 'Front image is required' });
     }
 
     const tier = premiumEnabled ? 'premium' : 'free';
-    console.log(`Analyzing face - Tier: ${tier}, Side photo: ${!!sideImage}, Gender override: ${genderOverride || 'none'}`);
+    console.log(`Analyzing face - Tier: ${tier}, Side photo: ${!!sideImage}, Manual gender: ${gender || 'not provided'}`);
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
@@ -327,6 +345,51 @@ Rules:
       console.log('Face check parse failed, proceeding with analysis...');
     }
 
+    // STEP 2: INFER APPEARANCE PROFILE (age, presentation, dimorphism)
+    console.log('Inferring appearance profile...');
+    let appearanceProfile = null;
+    try {
+      const appearanceResult = await model.generateContent([APPEARANCE_INFERENCE_PROMPT, imageParts[0]]);
+      const appearanceResponse = await appearanceResult.response;
+      let appearanceText = appearanceResponse.text().replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const appearanceData = JSON.parse(appearanceText);
+      appearanceProfile = appearanceData.appearanceProfile;
+      console.log(`  → Presentation: ${appearanceProfile.presentation} (confidence: ${appearanceProfile.confidence.toFixed(2)})`);
+      if (appearanceProfile.ageRange) {
+        console.log(`  → Age estimate: ${appearanceProfile.ageRange.min}-${appearanceProfile.ageRange.max}`);
+      }
+    } catch (appearanceError) {
+      console.log('Appearance inference failed, using neutral weights:', appearanceError.message);
+      // Fallback to neutral appearance profile
+      appearanceProfile = {
+        presentation: 'ambiguous',
+        confidence: 0.3,
+        ageRange: null,
+        ageConfidence: null,
+        dimorphismScore10: 5,
+        masculinityFemininity: { masculinity: 50, femininity: 50 },
+        photoLimitation: 'Could not reliably infer from photo'
+      };
+    }
+
+    // Determine scoring weight context based on appearance (or manual override)
+    let scoringContext = 'neutral';
+    if (gender) {
+      // Manual override provided
+      scoringContext = gender === 'male' ? 'masculine_leaning' : 'feminine_leaning';
+      console.log(`  → Using manual override: ${scoringContext}`);
+    } else if (appearanceProfile.confidence >= 0.65) {
+      // High confidence inference
+      if (appearanceProfile.presentation === 'male-presenting') {
+        scoringContext = 'masculine_leaning';
+      } else if (appearanceProfile.presentation === 'female-presenting') {
+        scoringContext = 'feminine_leaning';
+      }
+      console.log(`  → Auto-selected: ${scoringContext} (confidence >= 0.65)`);
+    } else {
+      console.log(`  → Using neutral weights (confidence ${appearanceProfile.confidence.toFixed(2)} < 0.65)`);
+    }
+
     if (sideImage) {
       imageParts.push({
         inlineData: {
@@ -336,30 +399,41 @@ Rules:
       });
     }
 
-    // Build the user prompt - gender is now auto-inferred
+    // Build scoring context instructions based on presentation
+    const scoringWeightInstructions = scoringContext === 'masculine_leaning' 
+      ? `
+SCORING WEIGHT CONTEXT: Masculine-presenting
+- Weight jawline definition and angularity higher
+- Consider brow ridge projection
+- Forward growth and chin projection are more impactful`
+      : scoringContext === 'feminine_leaning'
+      ? `
+SCORING WEIGHT CONTEXT: Feminine-presenting  
+- Weight skin quality and texture higher
+- Consider lip fullness and eye area
+- Softer features and facial harmony are more impactful`
+      : `
+SCORING WEIGHT CONTEXT: Neutral/balanced
+- Use balanced weights across all features
+- Don't assume any particular dimorphism ideal`;
+
     const userPrompt = `${SYSTEM_PROMPT}
 
 ===== CURRENT ANALYSIS REQUEST =====
+Inferred Presentation: ${appearanceProfile.presentation} (confidence: ${appearanceProfile.confidence.toFixed(2)})
+${scoringWeightInstructions}
 Tier: ${tier}
 Side photo: ${sideImage ? 'YES - can assess chin projection' : 'NO - mark chin/nose projection as LOW confidence'}
-${genderOverride ? `Gender override: ${genderOverride} (use this for scoring weights)` : 'Gender: AUTO-INFER from facial features (output in appearanceProfile)'}
-
-===== IMPORTANT: APPEARANCE PROFILE =====
-You MUST infer and output the "appearanceProfile" object:
-- Analyze facial features to determine presentation (male-presenting/female-presenting/ambiguous)
-- Provide confidence (0-1)
-- Estimate age range ONLY if confidence >= 0.65
-- Calculate dimorphism score (0-10)
-- Calculate masculinity/femininity (both 0-100, can be moderate for androgynous)
-- BE RESPECTFUL - this is informational, not judgmental
 
 ${tier === 'free' ? `
 FREE TIER - Analyze these features only:
 - skin, eye_area, nose, lips, cheekbones, jawline
-- Plus harmony, symmetry, hair, harmonyIndex (basic)
+- Plus harmony, harmonyIndex, symmetry, hair
 - 1-2 notes per feature, no subFeatures
 - 3-5 total improvement deltas
 - No proOptions
+- Include potentialRange (min/max)
+- Include basic harmonyIndex
 ` : `
 PREMIUM TIER - Full analysis:
 - All features: skin, eye_area, eyebrows, nose, lips, cheekbones, jawline, chin, neck_posture
@@ -369,6 +443,7 @@ PREMIUM TIER - Full analysis:
 - Include ceilingScore10
 - Facial thirds analysis
 - Full asymmetry details
+- Include potentialRange with confidence
 - Full harmonyIndex with all components
 `}
 
@@ -377,9 +452,9 @@ REMEMBER:
 2. Create VARIANCE - different features get different scores
 3. Provide EVIDENCE - cite specific visible cues
 4. Calculate POTENTIAL - show realistic improvement path with deltas
-5. Top 3 levers are the most important output - make them actionable
-6. AUTO-INFER appearance profile - output in appearanceProfile object
-7. Calculate HARMONY INDEX - based on golden ratio and facial proportions
+5. Include potentialRange (min/max) based on modifiable levers
+6. Calculate harmonyIndex based on symmetry, facial thirds, horizontal fifths, and golden ratio proximity
+7. Top 3 levers are the most important output - make them actionable
 
 Now analyze the photo and return ONLY the JSON object.`;
 
@@ -402,33 +477,8 @@ Now analyze the photo and return ONLY the JSON object.`;
     // POST-PROCESSING: Apply calibration curve to prevent score inflation
     parsedResponse = applyCalibration(parsedResponse);
 
-    // Ensure appearance profile exists with fallback
-    if (!parsedResponse.appearanceProfile) {
-      parsedResponse.appearanceProfile = {
-        presentation: 'ambiguous',
-        confidence: 0.3,
-        ageRange: null,
-        ageConfidence: null,
-        dimorphismScore10: 5.0,
-        masculinityFemininity: { masculinity: 50, femininity: 50 }
-      };
-    }
-
-    // Apply gender override if provided
-    if (genderOverride) {
-      parsedResponse.appearanceProfile.presentation = genderOverride === 'male' ? 'male-presenting' : 'female-presenting';
-      parsedResponse.appearanceProfile.confidence = 1.0; // Manual override = full confidence
-    }
-
-    // Ensure harmony index exists
-    if (!parsedResponse.harmonyIndex) {
-      parsedResponse.harmonyIndex = {
-        overall10: parsedResponse.harmony?.rating10 || 5.5,
-        confidence: 'medium',
-        components: {},
-        deviationNotes: []
-      };
-    }
+    // Add appearance profile to response
+    parsedResponse.appearanceProfile = appearanceProfile;
 
     // Ensure tier info is correct
     parsedResponse.tier = {
@@ -452,12 +502,21 @@ Now analyze the photo and return ONLY the JSON object.`;
       );
     }
 
-    // Log appearance profile inference
-    const ap = parsedResponse.appearanceProfile;
-    console.log(`Appearance Profile: ${ap.presentation} (conf: ${ap.confidence?.toFixed(2)}), Age: ${ap.ageRange ? `${ap.ageRange.min}-${ap.ageRange.max}` : 'N/A'}`);
+    // Ensure potentialRange exists
+    if (!parsedResponse.potentialRange && parsedResponse.overall) {
+      const current = parsedResponse.overall.currentScore10 || 5.5;
+      const potential = parsedResponse.overall.potentialScore10 || current + 1.0;
+      parsedResponse.potentialRange = {
+        min: Math.min(current + 0.5, potential - 0.3),
+        max: Math.min(potential + 0.5, 10),
+        confidence: 'medium',
+        note: 'Based on modifiable levers (hair, skin, brows, posture, photo optimization)'
+      };
+    }
+
     console.log('Analysis complete - Current:', parsedResponse.overall?.currentScore10?.toFixed(1), 
                 'Potential:', parsedResponse.overall?.potentialScore10?.toFixed(1),
-                'Harmony:', parsedResponse.harmonyIndex?.overall10?.toFixed(1));
+                'Presentation:', appearanceProfile.presentation);
     res.json(parsedResponse);
   } catch (error) {
     console.error('Analysis error:', error);

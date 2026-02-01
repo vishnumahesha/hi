@@ -853,236 +853,30 @@
       color: var(--success);
     }
 
-    /* Gender override (hidden by default) */
-    .gender-override-container {
+    .gender-selector {
       display: flex;
-      align-items: center;
       justify-content: center;
       gap: 1rem;
       margin-bottom: 2rem;
-      padding: 1rem;
+    }
+
+    .gender-btn {
+      padding: 0.75rem 2rem;
+      border-radius: 50px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
       background: var(--surface);
-      border-radius: 12px;
-      font-size: 0.9rem;
-    }
-
-    .gender-override-container.hidden {
-      display: none;
-    }
-
-    .override-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
       color: var(--text-secondary);
-      cursor: pointer;
-    }
-
-    #gender-override-select {
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      background: var(--surface-light);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--text);
-      font-size: 0.9rem;
-    }
-
-    #gender-override-select:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* ====== APPEARANCE PROFILE CARD ====== */
-    .appearance-profile-card {
-      background: linear-gradient(135deg, var(--surface), rgba(6, 182, 212, 0.1));
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      border: 1px solid rgba(6, 182, 212, 0.3);
-    }
-
-    .appearance-profile-card.hidden {
-      display: none;
-    }
-
-    .appearance-profile-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .appearance-profile-header h4 {
       font-size: 1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .hide-appearance-toggle {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
+      font-weight: 500;
       cursor: pointer;
+      transition: all 0.3s;
     }
 
-    .hide-appearance-toggle input {
-      cursor: pointer;
-    }
-
-    .appearance-profile-content {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-    }
-
-    .appearance-stat {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 1rem;
-    }
-
-    .appearance-stat-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.5rem;
-    }
-
-    .appearance-stat-value {
-      font-size: 1.1rem;
-      font-weight: 600;
+    .gender-btn.active {
+      border-color: var(--primary);
+      background: rgba(139, 92, 246, 0.2);
       color: var(--text);
-    }
-
-    .confidence-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-left: 0.5rem;
-    }
-
-    .confidence-pill.high {
-      background: rgba(16, 185, 129, 0.2);
-      color: var(--success);
-    }
-
-    .confidence-pill.medium {
-      background: rgba(245, 158, 11, 0.2);
-      color: var(--warning);
-    }
-
-    .confidence-pill.low {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--error);
-    }
-
-    .dimorphism-bar {
-      display: flex;
-      height: 8px;
-      border-radius: 4px;
-      overflow: hidden;
-      background: var(--surface-light);
-      margin-top: 0.5rem;
-    }
-
-    .dimorphism-bar .masc {
-      background: linear-gradient(90deg, #3b82f6, #60a5fa);
-      transition: width 0.5s ease;
-    }
-
-    .dimorphism-bar .fem {
-      background: linear-gradient(90deg, #ec4899, #f472b6);
-      transition: width 0.5s ease;
-    }
-
-    .dimorphism-labels {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 0.5rem;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .appearance-disclaimer {
-      margin-top: 1rem;
-      padding: 0.75rem;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .appearance-uncertain {
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      color: var(--warning);
-      font-size: 0.9rem;
-    }
-
-    /* ====== HARMONY INDEX CARD ====== */
-    .harmony-index-card {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      border: 1px solid rgba(139, 92, 246, 0.2);
-    }
-
-    .harmony-index-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .harmony-index-header h4 {
-      font-size: 1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .harmony-score {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--primary);
-    }
-
-    .harmony-components {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-    }
-
-    .harmony-component {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem;
-      background: var(--surface-light);
-      border-radius: 8px;
-      font-size: 0.85rem;
-    }
-
-    .harmony-component-score {
-      font-weight: 600;
-      color: var(--accent);
+      box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
     }
 
     /* Optional inputs for body scan */
@@ -1688,6 +1482,437 @@
 
     .calibration-note span:first-child {
       font-size: 1.1rem;
+    }
+
+    /* ============================
+       BEST VERSION GENERATOR STYLES
+       ============================ */
+    
+    .best-version-cta {
+      margin-top: 2.5rem;
+      margin-bottom: 1.5rem;
+      cursor: pointer;
+      opacity: 0;
+      animation: bestVersionFadeIn 0.8s ease forwards;
+      animation-delay: 1s;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    @keyframes bestVersionFadeIn {
+      0% { opacity: 0; transform: translateY(15px) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .best-version-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(6, 182, 212, 0.15) 100%);
+      border: 2px solid rgba(139, 92, 246, 0.5);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      width: 100%;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .best-version-inner:hover {
+      transform: translateY(-3px);
+      border-color: rgba(139, 92, 246, 0.8);
+      box-shadow: 0 12px 40px rgba(139, 92, 246, 0.35), 0 0 60px rgba(139, 92, 246, 0.15);
+    }
+
+    .best-version-glow {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(139, 92, 246, 0.2) 0%, transparent 60%);
+      animation: bestVersionPulse 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes bestVersionPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    .best-version-icon {
+      font-size: 2.5rem;
+      filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.8));
+      animation: iconSparkle 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes iconSparkle {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.15) rotate(5deg); }
+    }
+
+    .best-version-content {
+      flex: 1;
+      z-index: 1;
+    }
+
+    .best-version-content h4 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    }
+
+    .best-version-content p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .best-version-arrow {
+      font-size: 2rem;
+      color: var(--primary);
+      z-index: 1;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .best-version-inner:hover .best-version-arrow {
+      transform: translateX(8px);
+    }
+
+    /* Best Version Modal */
+    .best-version-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .best-version-modal.active {
+      display: flex;
+      animation: modalFadeIn 0.3s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .best-version-modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+    }
+
+    .best-version-modal-content {
+      position: relative;
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: modalSlideUp 0.4s ease;
+    }
+
+    @keyframes modalSlideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .best-version-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--surface-light);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 10;
+    }
+
+    .best-version-close:hover {
+      background: var(--error);
+      border-color: var(--error);
+    }
+
+    /* Loading State */
+    .best-version-loading {
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .best-version-loading-image {
+      width: 220px;
+      height: 220px;
+      border-radius: 20px;
+      background: var(--surface-light);
+      margin: 0 auto 1.5rem;
+      background-size: cover;
+      background-position: center;
+      filter: blur(4px);
+      animation: loadingPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes loadingPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.02); }
+    }
+
+    .best-version-loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--surface-light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .best-version-loading h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .best-version-loading-text {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+
+    .best-version-progress {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .best-version-progress-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--surface-light);
+      transition: background 0.3s;
+    }
+
+    .best-version-progress-dot.active {
+      background: var(--primary);
+    }
+
+    /* Results State */
+    .best-version-results h3 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+
+    .best-version-toggle {
+      display: flex;
+      background: var(--background);
+      border-radius: 14px;
+      padding: 5px;
+      margin-bottom: 1.5rem;
+    }
+
+    .best-version-toggle-btn {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+
+    .best-version-toggle-btn.active {
+      background: var(--primary);
+      color: var(--text);
+    }
+
+    .best-version-image-container {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .best-version-image-container img {
+      width: 100%;
+      border-radius: 20px;
+      display: block;
+    }
+
+    .best-version-badge {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fbbf24;
+      padding: 0.6rem 1.2rem;
+      border-radius: 24px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .best-version-badge::before {
+      content: '✨';
+    }
+
+    .best-version-fallback-notice {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--warning);
+    }
+
+    .best-version-changes {
+      background: var(--background);
+      border-radius: 18px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .best-version-changes h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+
+    .best-version-changes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .best-version-change-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .best-version-change-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(139, 92, 246, 0.25);
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .best-version-change-text {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .best-version-retry {
+      width: 100%;
+      padding: 1.1rem;
+      background: var(--surface-light);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .best-version-retry::before {
+      content: '🔄';
+    }
+
+    .best-version-retry:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 600px) {
+      .best-version-inner {
+        padding: 1.25rem 1.5rem;
+        gap: 1rem;
+        border-radius: 16px;
+        flex-direction: row;
+      }
+      
+      .best-version-icon {
+        font-size: 2rem;
+      }
+      
+      .best-version-content h4 {
+        font-size: 1.15rem;
+      }
+      
+      .best-version-content p {
+        font-size: 0.85rem;
+      }
+      
+      .best-version-arrow {
+        font-size: 1.5rem;
+      }
+      
+      .best-version-modal-content {
+        padding: 1.5rem;
+        border-radius: 20px;
+      }
+      
+      .best-version-loading-image {
+        width: 180px;
+        height: 180px;
+      }
     }
 
     /* Photo Quality Warnings */
@@ -3489,21 +3714,6 @@
         padding: 0.4rem 0.6rem;
       }
 
-      /* Appearance Profile mobile */
-      .appearance-profile-content {
-        grid-template-columns: 1fr;
-      }
-
-      .appearance-profile-header {
-        flex-direction: column;
-        gap: 0.75rem;
-        align-items: flex-start;
-      }
-
-      .harmony-components {
-        grid-template-columns: 1fr;
-      }
-
       .style-grid {
         grid-template-columns: 1fr;
       }
@@ -3539,6 +3749,19 @@
       .progress-gallery {
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .appearance-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .harmony-components {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Hide old gender selector styles - no longer used */
+    .gender-selector {
+      display: none !important;
     }
   </style>
 </head>
@@ -3872,19 +4095,21 @@
         </div>
       </div>
 
-      <!-- Gender selector removed - now auto-inferred from photo -->
-      <!-- Hidden advanced setting for manual override -->
-      <div class="gender-override-container hidden" id="gender-override-container">
-        <label class="override-label">
-          <input type="checkbox" id="enable-gender-override">
-          Manual appearance override
-        </label>
-        <select id="gender-override-select" disabled>
-          <option value="">Auto-detect</option>
-          <option value="male">Male-presenting</option>
-          <option value="female">Female-presenting</option>
-        </select>
-      </div>
+      <!-- Gender selector removed - now auto-inferred -->
+      <!-- Hidden advanced override (collapsed by default) -->
+      <details class="advanced-options" id="advanced-options">
+        <summary>⚙️ Advanced Options</summary>
+        <div class="advanced-content">
+          <label class="option-label">
+            <span>Manual appearance override (optional):</span>
+            <select id="manual-appearance-override">
+              <option value="">Auto-detect (recommended)</option>
+              <option value="male">Use masculine-presenting weights</option>
+              <option value="female">Use feminine-presenting weights</option>
+            </select>
+          </label>
+        </div>
+      </details>
 
       <button class="analyze-btn" id="analyze-btn" disabled>
         ✨ Analyze My Face
@@ -3949,32 +4174,88 @@
         </div>
       </div>
 
-      <!-- Appearance Profile Card (Auto-inferred) -->
+      <!-- Appearance Profile Card (auto-inferred) -->
       <div class="appearance-profile-card" id="appearance-profile-card">
         <div class="appearance-profile-header">
-          <h4>🎭 Appearance Profile</h4>
+          <h4>🔍 Appearance Profile</h4>
           <label class="hide-appearance-toggle">
             <input type="checkbox" id="hide-appearance-toggle">
-            <span>Hide estimates</span>
+            <span>Hide</span>
           </label>
         </div>
+        
         <div id="appearance-profile-content">
-          <!-- Content populated by JS -->
-        </div>
-        <div class="appearance-disclaimer">
-          <span>ℹ️</span>
-          <span>Estimates based on this photo; lighting and angle can affect results.</span>
+          <div class="appearance-grid">
+            <div class="appearance-item">
+              <div class="appearance-item-label">Presentation</div>
+              <div class="appearance-item-value">
+                <span id="presentation-value">—</span>
+                <span class="confidence-pill medium" id="presentation-confidence">—</span>
+              </div>
+            </div>
+            <div class="appearance-item">
+              <div class="appearance-item-label">Age Estimate</div>
+              <div class="appearance-item-value">
+                <span id="age-range-value">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="appearance-item" style="margin-top: 1rem;">
+            <div class="appearance-item-label">Dimorphism Score</div>
+            <div class="appearance-item-value">
+              <span id="dimorphism-value">—</span>/10
+            </div>
+            <div class="dimorphism-bar">
+              <div class="dimorphism-bar-container">
+                <div class="dimorphism-marker" id="dimorphism-marker" style="left: 50%;"></div>
+              </div>
+            </div>
+            <div class="dimorphism-labels">
+              <span>Neutral</span>
+              <span>Pronounced</span>
+            </div>
+          </div>
+
+          <div class="appearance-item" style="margin-top: 1rem;">
+            <div class="appearance-item-label">Masculinity / Femininity</div>
+            <div class="masc-fem-bars">
+              <div class="mf-bar">
+                <span class="mf-bar-label">Masculine</span>
+                <div class="mf-bar-track">
+                  <div class="mf-bar-fill masc" id="masc-bar" style="width: 0%;"></div>
+                </div>
+                <span class="mf-bar-value" id="masc-value">—</span>
+              </div>
+              <div class="mf-bar">
+                <span class="mf-bar-label">Feminine</span>
+                <div class="mf-bar-track">
+                  <div class="mf-bar-fill fem" id="fem-bar" style="width: 0%;"></div>
+                </div>
+                <span class="mf-bar-value" id="fem-value">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="low-confidence-warning hidden" id="appearance-low-confidence">
+            ⚠️ <span>Uncertain — estimates may vary with different photos</span>
+          </div>
+
+          <div class="appearance-disclaimer">
+            <span>ℹ️</span>
+            <span>Estimates based on this photo. Lighting, angle, and expression can affect results. These are visual observations, not identity statements.</span>
+          </div>
         </div>
       </div>
 
-      <!-- Harmony Index Card -->
-      <div class="harmony-index-card" id="harmony-index-card">
+      <!-- Harmony Index Card (Golden Ratio / Phi-based) -->
+      <div class="harmony-index-card" id="harmony-index-card" style="display: none;">
         <div class="harmony-index-header">
           <h4>📐 Harmony Index</h4>
-          <span class="harmony-score" id="harmony-score">—</span>
+          <span class="harmony-score-badge" id="harmony-score-badge">—/10</span>
         </div>
         <div class="harmony-components" id="harmony-components">
-          <!-- Components populated by JS -->
+          <!-- Populated by JS -->
         </div>
       </div>
 
@@ -4310,9 +4591,8 @@
     // State
     let frontImage = null;
     let sideImage = null;
-    let genderOverride = null; // Now auto-inferred, this is for manual override only
     let currentScanType = 'face'; // 'face' or 'body'
-    let hideAppearanceEstimates = localStorage.getItem('hideAppearance') === 'true';
+    let hideAppearanceEstimates = false; // Toggle state
     // For local testing use: 'http://localhost:3001'
     // For mobile/public testing, use the tunnel URL:
     const API_URL = 'http://localhost:3001';
@@ -4451,38 +4731,8 @@
     const resultsSection = document.getElementById('results');
     const uploadSection = document.getElementById('upload');
     const newScanBtn = document.getElementById('new-scan-btn');
-    
-    // Gender override elements (hidden advanced setting)
-    const genderOverrideCheckbox = document.getElementById('enable-gender-override');
-    const genderOverrideSelect = document.getElementById('gender-override-select');
-    
-    // Hide appearance toggle
+    const manualOverrideSelect = document.getElementById('manual-appearance-override');
     const hideAppearanceToggle = document.getElementById('hide-appearance-toggle');
-    if (hideAppearanceToggle) {
-      hideAppearanceToggle.checked = hideAppearanceEstimates;
-      hideAppearanceToggle.addEventListener('change', function() {
-        hideAppearanceEstimates = this.checked;
-        localStorage.setItem('hideAppearance', hideAppearanceEstimates);
-        const card = document.getElementById('appearance-profile-card');
-        if (card) {
-          card.classList.toggle('hidden', hideAppearanceEstimates);
-        }
-      });
-    }
-    
-    // Gender override handlers
-    if (genderOverrideCheckbox && genderOverrideSelect) {
-      genderOverrideCheckbox.addEventListener('change', function() {
-        genderOverrideSelect.disabled = !this.checked;
-        if (!this.checked) {
-          genderOverrideSelect.value = '';
-          genderOverride = null;
-        }
-      });
-      genderOverrideSelect.addEventListener('change', function() {
-        genderOverride = this.value || null;
-      });
-    }
 
     // Convert file to base64
     function fileToBase64(file) {
@@ -4566,7 +4816,13 @@
     });
 
     // Gender selection
-    // Gender buttons removed - now auto-inferred from photo
+    genderBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        genderBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedGender = btn.dataset.gender;
+      });
+    });
 
     // Analyze
     analyzeBtn.addEventListener('click', async () => {
@@ -4605,17 +4861,12 @@
         const requestBody = {
             frontImage,
             sideImage,
+            gender: manualOverrideSelect?.value || null, // Optional manual override, or auto-detect
             premiumEnabled: false,
         };
 
-        // Add gender override only if manually set
-        if (genderOverride) {
-          requestBody.gender = genderOverride;
-        }
-
         // Add body-specific inputs
         if (currentScanType === 'body') {
-          requestBody.gender = genderOverride || 'male'; // Body still needs gender for workout recommendations
           requestBody.height = document.getElementById('height-input').value;
           requestBody.weight = document.getElementById('weight-input').value;
           requestBody.gymAccess = document.getElementById('gym-input').value;
@@ -4657,7 +4908,7 @@
           console.log('Error occurred - showing demo results:', error.message);
           const demoData = currentScanType === 'body' ? getMockBodyResults() : getMockResults();
           displayResults(demoData, true);
-          return;
+        return;
         }
       } finally {
         loadingOverlay.classList.add('hidden');
@@ -4822,7 +5073,11 @@
       // Show Best Version CTA for face analysis only
       const bestVersionCta = document.getElementById('best-version-cta');
       if (bestVersionCta) {
-        bestVersionCta.style.display = isBody ? 'none' : 'block';
+        if (isBody) {
+          bestVersionCta.style.display = 'none';
+        } else {
+          bestVersionCta.style.display = 'block';
+        }
       }
 
       // Top 3 Levers
@@ -4870,12 +5125,12 @@
         return `
           <div class="feature-result-card ${isBody ? 'body-mode' : ''}" data-feature-key="${featureKey}" onclick="toggleFeatureCard(this)">
             <div class="feature-collapsed">
-              <div class="feature-result-header">
+            <div class="feature-result-header">
                 <span class="feature-result-name">
                   ${getFeatureIcon(featureKey)} ${feature.label || feature.key}
                   ${feature.confidence ? `<span class="feature-confidence-badge ${feature.confidence}">${feature.confidence}</span>` : ''}
                 </span>
-                <span class="feature-result-score" style="color: ${featureColor}">${feature.rating10.toFixed(1)}/10</span>
+              <span class="feature-result-score" style="color: ${featureColor}">${feature.rating10.toFixed(1)}/10</span>
               </div>
               <span class="feature-expand-icon">▼</span>
             </div>
@@ -4896,7 +5151,7 @@
                 <div class="feature-section-title">✅ What's Working</div>
                 <ul class="feature-strengths-list">
                   ${strengths.map(s => `<li><span>✓</span> ${s}</li>`).join('')}
-                </ul>
+            </ul>
               </div>
               ` : ''}
               
@@ -4970,7 +5225,192 @@
         `;
       }).join('');
 
+      // Display appearance profile if available
+      displayAppearanceProfile(data.appearanceProfile);
+      
+      // Display harmony index if available
+      displayHarmonyIndex(data.harmonyIndex);
+      
+      // Display potential range if available
+      displayPotentialRange(data.potentialRange, data.overall);
+
       resultsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Display Appearance Profile
+    function displayAppearanceProfile(profile) {
+      const card = document.getElementById('appearance-profile-card');
+      const content = document.getElementById('appearance-profile-content');
+      
+      if (!profile || !card) {
+        if (card) card.style.display = 'none';
+        return;
+      }
+      
+      card.style.display = 'block';
+      
+      // Apply hide preference
+      if (hideAppearanceEstimates) {
+        content.style.display = 'none';
+        return;
+      }
+      content.style.display = 'block';
+      
+      // Presentation
+      const presentationEl = document.getElementById('presentation-value');
+      const presentationConfEl = document.getElementById('presentation-confidence');
+      
+      const presentationLabels = {
+        'male-presenting': 'Male-presenting',
+        'female-presenting': 'Female-presenting',
+        'ambiguous': 'Ambiguous'
+      };
+      
+      if (presentationEl) {
+        presentationEl.textContent = presentationLabels[profile.presentation] || profile.presentation;
+      }
+      
+      if (presentationConfEl) {
+        const confLevel = profile.confidence >= 0.75 ? 'high' : 
+                          profile.confidence >= 0.5 ? 'medium' : 'low';
+        presentationConfEl.textContent = `${Math.round(profile.confidence * 100)}%`;
+        presentationConfEl.className = `confidence-pill ${confLevel}`;
+      }
+      
+      // Age Range
+      const ageRangeEl = document.getElementById('age-range-value');
+      if (ageRangeEl) {
+        if (profile.ageRange && profile.ageConfidence >= 0.65) {
+          ageRangeEl.textContent = `${profile.ageRange.min}-${profile.ageRange.max} years`;
+        } else if (profile.ageRange && profile.ageConfidence >= 0.4) {
+          ageRangeEl.innerHTML = `~${profile.ageRange.min}-${profile.ageRange.max} <span style="font-size:0.7rem;color:var(--text-muted);">(uncertain)</span>`;
+        } else {
+          ageRangeEl.textContent = '—';
+        }
+      }
+      
+      // Dimorphism Score
+      const dimorphismEl = document.getElementById('dimorphism-value');
+      const dimorphismMarker = document.getElementById('dimorphism-marker');
+      if (dimorphismEl) {
+        dimorphismEl.textContent = profile.dimorphismScore10?.toFixed(1) || '—';
+      }
+      if (dimorphismMarker && profile.dimorphismScore10) {
+        dimorphismMarker.style.left = `${profile.dimorphismScore10 * 10}%`;
+      }
+      
+      // Masculinity / Femininity bars
+      const mascBar = document.getElementById('masc-bar');
+      const femBar = document.getElementById('fem-bar');
+      const mascValue = document.getElementById('masc-value');
+      const femValue = document.getElementById('fem-value');
+      
+      if (profile.masculinityFemininity) {
+        const masc = profile.masculinityFemininity.masculinity || 50;
+        const fem = profile.masculinityFemininity.femininity || 50;
+        
+        if (mascBar) mascBar.style.width = `${masc}%`;
+        if (femBar) femBar.style.width = `${fem}%`;
+        if (mascValue) mascValue.textContent = Math.round(masc);
+        if (femValue) femValue.textContent = Math.round(fem);
+      }
+      
+      // Low confidence warning
+      const lowConfWarning = document.getElementById('appearance-low-confidence');
+      if (lowConfWarning) {
+        if (profile.confidence < 0.5) {
+          lowConfWarning.classList.remove('hidden');
+        } else {
+          lowConfWarning.classList.add('hidden');
+        }
+      }
+    }
+
+    // Display Harmony Index (Golden Ratio / Phi-based)
+    function displayHarmonyIndex(harmonyIndex) {
+      const card = document.getElementById('harmony-index-card');
+      const badge = document.getElementById('harmony-score-badge');
+      const componentsEl = document.getElementById('harmony-components');
+      
+      if (!harmonyIndex || !card) {
+        if (card) card.style.display = 'none';
+        return;
+      }
+      
+      card.style.display = 'block';
+      
+      if (badge) {
+        badge.textContent = `${harmonyIndex.score10?.toFixed(1) || '—'}/10`;
+      }
+      
+      if (componentsEl && harmonyIndex.components) {
+        const components = harmonyIndex.components;
+        let html = '';
+        
+        if (components.facialSymmetry) {
+          html += `
+            <div class="harmony-component">
+              <div class="harmony-component-name">⚖️ Facial Symmetry</div>
+              <div class="harmony-component-score">${components.facialSymmetry.score10?.toFixed(1) || '—'}/10</div>
+              ${components.facialSymmetry.note ? `<div class="harmony-component-note">${components.facialSymmetry.note}</div>` : ''}
+            </div>
+          `;
+        }
+        
+        if (components.facialThirds) {
+          const thirds = components.facialThirds;
+          html += `
+            <div class="harmony-component">
+              <div class="harmony-component-name">📏 Facial Thirds</div>
+              <div class="harmony-component-score">${thirds.score10?.toFixed(1) || '—'}/10</div>
+              ${thirds.idealDeviation ? `<div class="harmony-component-note">${thirds.idealDeviation}</div>` : 
+                thirds.note ? `<div class="harmony-component-note">${thirds.note}</div>` : ''}
+            </div>
+          `;
+        }
+        
+        if (components.horizontalFifths) {
+          html += `
+            <div class="harmony-component">
+              <div class="harmony-component-name">↔️ Horizontal Fifths</div>
+              <div class="harmony-component-score">${components.horizontalFifths.score10?.toFixed(1) || '—'}/10</div>
+              ${components.horizontalFifths.note ? `<div class="harmony-component-note">${components.horizontalFifths.note}</div>` : ''}
+            </div>
+          `;
+        }
+        
+        if (components.goldenRatioProximity) {
+          html += `
+            <div class="harmony-component">
+              <div class="harmony-component-name">✨ Golden Ratio</div>
+              <div class="harmony-component-score">${components.goldenRatioProximity.score10?.toFixed(1) || '—'}/10</div>
+              ${components.goldenRatioProximity.note ? `<div class="harmony-component-note">${components.goldenRatioProximity.note}</div>` : ''}
+            </div>
+          `;
+        }
+        
+        componentsEl.innerHTML = html || '<div class="harmony-component"><div class="harmony-component-note">Detailed breakdown not available</div></div>';
+      }
+    }
+
+    // Display Potential Range (min/max)
+    function displayPotentialRange(potentialRange, overall) {
+      // Add potential range below the potential score display
+      const potentialCircle = document.getElementById('potential-score-circle');
+      if (!potentialCircle || !potentialRange) return;
+      
+      // Check if range display already exists
+      let rangeDisplay = potentialCircle.querySelector('.potential-range');
+      if (!rangeDisplay) {
+        rangeDisplay = document.createElement('div');
+        rangeDisplay.className = 'potential-range';
+        potentialCircle.appendChild(rangeDisplay);
+      }
+      
+      rangeDisplay.innerHTML = `
+        <span style="font-size: 0.75rem;">Range:</span>
+        <span class="potential-range-values">${potentialRange.min?.toFixed(1)} - ${potentialRange.max?.toFixed(1)}</span>
+      `;
     }
 
     // New scan
@@ -5252,20 +5692,10 @@
 
     // Generate style recommendations
     function generateStyleRecommendations(data) {
-      // Use appearance profile presentation for gender-specific recommendations
-      const profile = data.appearanceProfile;
-      let gender = 'male'; // fallback
-      if (profile) {
-        if (profile.presentation === 'female-presenting' && profile.confidence >= 0.65) {
-          gender = 'female';
-        } else if (profile.presentation === 'male-presenting' && profile.confidence >= 0.65) {
-          gender = 'male';
-        }
-      }
-      // Manual override takes precedence
-      if (genderOverride) {
-        gender = genderOverride;
-      }
+      // Use appearance profile to determine style recommendations
+      const presentation = data.appearanceProfile?.presentation || 'ambiguous';
+      const gender = presentation === 'male-presenting' ? 'male' : 
+                     presentation === 'female-presenting' ? 'female' : 'neutral';
       const features = data.features || [];
       
       // Find relevant features
@@ -5574,154 +6004,6 @@
       };
     }
 
-    // ====== APPEARANCE PROFILE DISPLAY ======
-    function displayAppearanceProfile(data) {
-      const card = document.getElementById('appearance-profile-card');
-      const content = document.getElementById('appearance-profile-content');
-      
-      if (!card || !content) return;
-      
-      // Hide if toggle is on
-      if (hideAppearanceEstimates) {
-        card.classList.add('hidden');
-        return;
-      }
-      
-      card.classList.remove('hidden');
-      
-      const profile = data.appearanceProfile;
-      
-      // If no profile or low confidence, show uncertain state
-      if (!profile || profile.confidence < 0.4) {
-        content.innerHTML = `
-          <div class="appearance-uncertain">
-            ⚠️ Uncertain — retake photo for better estimate
-          </div>
-        `;
-        return;
-      }
-      
-      // Format presentation label
-      const presentationLabels = {
-        'male-presenting': 'Male-Presenting',
-        'female-presenting': 'Female-Presenting',
-        'ambiguous': 'Ambiguous'
-      };
-      
-      // Get confidence level
-      const confLevel = profile.confidence >= 0.8 ? 'high' : profile.confidence >= 0.6 ? 'medium' : 'low';
-      const confPercent = Math.round(profile.confidence * 100);
-      
-      // Build age display
-      let ageDisplay = '—';
-      if (profile.ageRange && profile.ageConfidence >= 0.65) {
-        ageDisplay = `${profile.ageRange.min}–${profile.ageRange.max}`;
-      }
-      
-      // Masculinity/femininity values
-      const masc = profile.masculinityFemininity?.masculinity || 50;
-      const fem = profile.masculinityFemininity?.femininity || 50;
-      const total = masc + fem;
-      const mascWidth = (masc / total) * 100;
-      const femWidth = (fem / total) * 100;
-      
-      content.innerHTML = `
-        <div class="appearance-profile-content">
-          <div class="appearance-stat">
-            <div class="appearance-stat-label">Presentation</div>
-            <div class="appearance-stat-value">
-              ${presentationLabels[profile.presentation] || 'Unknown'}
-              <span class="confidence-pill ${confLevel}">${confPercent}%</span>
-            </div>
-          </div>
-          <div class="appearance-stat">
-            <div class="appearance-stat-label">Estimated Age Range</div>
-            <div class="appearance-stat-value">${ageDisplay}</div>
-          </div>
-          <div class="appearance-stat">
-            <div class="appearance-stat-label">Dimorphism Score</div>
-            <div class="appearance-stat-value">${(profile.dimorphismScore10 || 5).toFixed(1)}/10</div>
-          </div>
-          <div class="appearance-stat">
-            <div class="appearance-stat-label">Presentation Balance</div>
-            <div class="dimorphism-bar">
-              <div class="masc" style="width: ${mascWidth}%"></div>
-              <div class="fem" style="width: ${femWidth}%"></div>
-            </div>
-            <div class="dimorphism-labels">
-              <span>Masculine ${Math.round(masc)}%</span>
-              <span>Feminine ${Math.round(fem)}%</span>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-    
-    // ====== HARMONY INDEX DISPLAY ======
-    function displayHarmonyIndex(data) {
-      const card = document.getElementById('harmony-index-card');
-      const scoreEl = document.getElementById('harmony-score');
-      const componentsEl = document.getElementById('harmony-components');
-      
-      if (!card || !scoreEl || !componentsEl) return;
-      
-      const harmonyIndex = data.harmonyIndex;
-      
-      if (!harmonyIndex) {
-        // Use legacy harmony if available
-        if (data.harmony) {
-          scoreEl.textContent = (data.harmony.rating10 || 5.5).toFixed(1) + '/10';
-          componentsEl.innerHTML = `
-            <div class="harmony-component">
-              <span>Overall Harmony</span>
-              <span class="harmony-component-score">${(data.harmony.rating10 || 5.5).toFixed(1)}</span>
-            </div>
-          `;
-        }
-        return;
-      }
-      
-      // Display overall score
-      scoreEl.textContent = (harmonyIndex.overall10 || 5.5).toFixed(1) + '/10';
-      
-      // Display components
-      const components = harmonyIndex.components || {};
-      const componentLabels = {
-        facialSymmetry: 'Facial Symmetry',
-        facialThirds: 'Facial Thirds',
-        horizontalFifths: 'Horizontal Fifths',
-        goldenRatioProximity: 'Golden Ratio',
-        eyeSpacing: 'Eye Spacing',
-        noseToMouthRatio: 'Nose/Mouth Ratio',
-        jawToFaceRatio: 'Jaw/Face Ratio'
-      };
-      
-      let html = '';
-      for (const [key, value] of Object.entries(components)) {
-        if (value && typeof value.score10 === 'number') {
-          const label = componentLabels[key] || key;
-          const confIcon = value.confidence >= 0.7 ? '🟢' : value.confidence >= 0.4 ? '🟡' : '🔴';
-          html += `
-            <div class="harmony-component">
-              <span>${confIcon} ${label}</span>
-              <span class="harmony-component-score">${value.score10.toFixed(1)}</span>
-            </div>
-          `;
-        }
-      }
-      
-      if (!html) {
-        html = `
-          <div class="harmony-component">
-            <span>Proportional Harmony</span>
-            <span class="harmony-component-score">${(harmonyIndex.overall10 || 5.5).toFixed(1)}</span>
-          </div>
-        `;
-      }
-      
-      componentsEl.innerHTML = html;
-    }
-
     // Enhanced displayResults - integrate new features
     const originalDisplayResults = displayResults;
     displayResults = function(data, isDemo = false) {
@@ -5730,12 +6012,6 @@
       
       // Call original
       originalDisplayResults(data, isDemo);
-      
-      // Display appearance profile (new)
-      displayAppearanceProfile(data);
-      
-      // Display harmony index (new)
-      displayHarmonyIndex(data);
       
       // Display delta breakdown
       displayDeltaBreakdown(data);
@@ -6308,17 +6584,17 @@
       
       // Start loading animation
       bestVersionMessageIndex = 0;
-      updateLoadingMessage();
+      updateBestVersionLoadingMessage();
       bestVersionLoadingInterval = setInterval(() => {
         bestVersionMessageIndex = (bestVersionMessageIndex + 1) % BEST_VERSION_LOADING_MESSAGES.length;
-        updateLoadingMessage();
+        updateBestVersionLoadingMessage();
       }, 2500);
       
       // Generate best version
       generateBestVersion();
     }
 
-    function updateLoadingMessage() {
+    function updateBestVersionLoadingMessage() {
       const textEl = document.getElementById('best-version-loading-text');
       if (textEl) {
         textEl.textContent = BEST_VERSION_LOADING_MESSAGES[bestVersionMessageIndex];
