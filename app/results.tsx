@@ -6,29 +6,23 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
-import Animated, {
-  FadeIn,
-  FadeInDown,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { colors, spacing, borderRadius } from '@/constants/theme';
 import {
-  CircularRating,
+  DualRatingCircle,
   ConfidenceBadge,
   FeatureCard,
   PhotoQualityWarnings,
-  TopFixItem,
   FeatureDetailModal,
   Button,
+  Top3Levers,
 } from '@/components';
-import { FEATURE_METADATA, CONFIDENCE_LABELS } from '@/constants';
+import { CONFIDENCE_LABELS, SCORE_CONTEXT } from '@/constants';
 import { useAppStore } from '@/store/useAppStore';
 import { getMockResponse } from '@/data/mock-response';
 import type { Feature, Harmony, Hair, Symmetry } from '@/types/face-analysis';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function ResultsScreen() {
   const router = useRouter();
@@ -43,9 +37,6 @@ export default function ResultsScreen() {
   const [selectedHair, setSelectedHair] = useState<Hair | null>(null);
   const [selectedSymmetry, setSelectedSymmetry] = useState<Symmetry | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-
-  // Expanded top fixes
-  const [expandedFixes, setExpandedFixes] = useState<Set<number>>(new Set());
 
   const handleFeaturePress = (feature: Feature) => {
     setSelectedFeature(feature);
@@ -87,18 +78,6 @@ export default function ResultsScreen() {
     setSelectedSymmetry(null);
   };
 
-  const toggleFix = (index: number) => {
-    setExpandedFixes((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      return newSet;
-    });
-  };
-
   const handleNewScan = () => {
     clearPhotos();
     router.replace('/');
@@ -109,6 +88,7 @@ export default function ResultsScreen() {
   };
 
   const overallConfidenceConfig = CONFIDENCE_LABELS[result.overall.confidence];
+  const currentScoreContext = SCORE_CONTEXT[Math.round(result.overall.currentScore10) as keyof typeof SCORE_CONTEXT] || 'Average';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -135,33 +115,48 @@ export default function ResultsScreen() {
           </View>
         )}
 
-        {/* Overall Rating */}
-        <Animated.View
-          entering={FadeIn.delay(200)}
-          style={styles.overallSection}
-        >
-          <CircularRating rating={result.overall.rating10} />
-          
-          {/* Overall confidence */}
-          <View style={styles.overallConfidence}>
-            <View style={[styles.overallConfidenceDot, { backgroundColor: overallConfidenceConfig.color }]} />
-            <Text style={[styles.overallConfidenceText, { color: overallConfidenceConfig.color }]}>
-              {overallConfidenceConfig.label}
+        {/* Overall Rating - Current vs Potential */}
+        <Animated.View entering={FadeIn.delay(200)} style={styles.overallSection}>
+          <DualRatingCircle
+            currentScore={result.overall.currentScore10}
+            potentialScore={result.overall.potentialScore10}
+          />
+
+          {/* Score context */}
+          <View style={styles.scoreContextContainer}>
+            <Text style={styles.scoreContextText}>
+              {currentScoreContext}
             </Text>
+            <View style={styles.confidenceRow}>
+              <View style={[styles.confidenceDot, { backgroundColor: overallConfidenceConfig.color }]} />
+              <Text style={[styles.confidenceText, { color: overallConfidenceConfig.color }]}>
+                {overallConfidenceConfig.label}
+              </Text>
+            </View>
           </View>
-          
+
           <Text style={styles.overallSummary}>{result.overall.summary}</Text>
-          
-          {result.overall.confidenceNote && (
-            <View style={styles.confidenceNoteBox}>
-              <Text style={styles.confidenceNoteIcon}>ℹ️</Text>
-              <Text style={styles.confidenceNoteText}>{result.overall.confidenceNote}</Text>
+
+          {/* Calibration note - explains the scoring */}
+          {result.overall.calibrationNote && (
+            <View style={styles.calibrationNote}>
+              <Text style={styles.calibrationIcon}>📊</Text>
+              <Text style={styles.calibrationText}>{result.overall.calibrationNote}</Text>
             </View>
           )}
         </Animated.View>
 
-        {/* Photo Quality & Confidence */}
-        <Animated.View entering={FadeIn.delay(400)} style={styles.qualitySection}>
+        {/* Top 3 Levers - THE KEY FEATURE */}
+        <Animated.View entering={FadeIn.delay(400)} style={styles.leversSection}>
+          <Top3Levers
+            levers={result.potential.top3Levers}
+            totalGain={result.potential.totalPossibleGain}
+            timelineToFull={result.potential.timelineToFullPotential}
+          />
+        </Animated.View>
+
+        {/* Photo Quality */}
+        <Animated.View entering={FadeIn.delay(500)} style={styles.qualitySection}>
           <ConfidenceBadge
             confidence={result.overall.confidence}
             photoQualityScore={result.photoQuality.score}
@@ -172,16 +167,11 @@ export default function ResultsScreen() {
               score={result.photoQuality.score}
             />
           )}
-          
-          {/* Photo limitations summary */}
-          {result.photoQuality.limitations && result.photoQuality.limitations.length > 0 && (
+          {result.photoQuality.assessmentLimitations && result.photoQuality.assessmentLimitations.length > 0 && (
             <View style={styles.limitationsBox}>
-              <Text style={styles.limitationsTitle}>📷 Photo Limitations</Text>
-              {result.photoQuality.limitations.map((lim, idx) => (
-                <View key={idx} style={styles.limitationRow}>
-                  <Text style={styles.limitationFeature}>{lim.feature}:</Text>
-                  <Text style={styles.limitationDesc}>{lim.limitation}</Text>
-                </View>
+              <Text style={styles.limitationsTitle}>📋 Assessment Limitations</Text>
+              {result.photoQuality.assessmentLimitations.map((lim, idx) => (
+                <Text key={idx} style={styles.limitationItem}>• {lim}</Text>
               ))}
             </View>
           )}
@@ -190,24 +180,26 @@ export default function ResultsScreen() {
         {/* Feature Ratings */}
         <View style={styles.featuresSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Feature Analysis</Text>
+            <Text style={styles.sectionTitle}>Feature Breakdown</Text>
             <Text style={styles.sectionSubtitle}>
-              Tap any feature for details{premiumEnabled ? ' and sub-features' : ''}
+              Honest ratings with evidence
             </Text>
           </View>
-          
+
           <View style={styles.featuresGrid}>
             {result.features.map((feature, index) => (
-              <Animated.View 
-                key={feature.key} 
+              <Animated.View
+                key={feature.key}
                 style={styles.featureCardWrapper}
-                entering={FadeInDown.delay(500 + index * 80)}
+                entering={FadeInDown.delay(600 + index * 60)}
               >
                 <FeatureCard
                   featureKey={feature.key}
                   rating={feature.rating10}
                   confidence={feature.confidence}
+                  evidence={feature.evidence}
                   strengthsPreview={feature.strengths}
+                  holdingBackPreview={feature.holdingBack}
                   photoLimitations={feature.photoLimitations}
                   hasSubFeatures={!!feature.subFeatures && feature.subFeatures.length > 0}
                   onPress={() => handleFeaturePress(feature)}
@@ -219,14 +211,15 @@ export default function ResultsScreen() {
 
             {/* Symmetry Card */}
             {result.symmetry && (
-              <Animated.View 
+              <Animated.View
                 style={styles.featureCardWrapper}
-                entering={FadeInDown.delay(500 + result.features.length * 80)}
+                entering={FadeInDown.delay(600 + result.features.length * 60)}
               >
                 <FeatureCard
                   featureKey="symmetry"
                   rating={result.symmetry.rating10}
                   confidence={result.symmetry.confidence}
+                  evidence={result.symmetry.evidence}
                   strengthsPreview={result.symmetry.notes}
                   photoLimitations={result.symmetry.photoLimitation ? [result.symmetry.photoLimitation] : []}
                   hasSubFeatures={!!result.symmetry.asymmetries}
@@ -238,14 +231,15 @@ export default function ResultsScreen() {
             )}
 
             {/* Harmony Card */}
-            <Animated.View 
+            <Animated.View
               style={styles.featureCardWrapper}
-              entering={FadeInDown.delay(500 + (result.features.length + 1) * 80)}
+              entering={FadeInDown.delay(600 + (result.features.length + 1) * 60)}
             >
               <FeatureCard
                 featureKey="harmony"
                 rating={result.harmony.rating10}
                 confidence={result.harmony.confidence}
+                evidence={result.harmony.evidence}
                 strengthsPreview={result.harmony.notes}
                 hasSubFeatures={!!result.harmony.facialThirds}
                 onPress={handleHarmonyPress}
@@ -255,14 +249,15 @@ export default function ResultsScreen() {
             </Animated.View>
 
             {/* Hair Card */}
-            <Animated.View 
+            <Animated.View
               style={styles.featureCardWrapper}
-              entering={FadeInDown.delay(500 + (result.features.length + 2) * 80)}
+              entering={FadeInDown.delay(600 + (result.features.length + 2) * 60)}
             >
               <FeatureCard
                 featureKey="hair"
                 rating={result.hair.rating10}
                 confidence={result.hair.confidence}
+                evidence={result.hair.evidence}
                 strengthsPreview={result.hair.notes}
                 onPress={handleHairPress}
                 index={result.features.length + 2}
@@ -272,43 +267,49 @@ export default function ResultsScreen() {
           </View>
         </View>
 
-        {/* Top Fixes */}
-        <View style={styles.fixesSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Action Plan</Text>
-            <Text style={styles.sectionSubtitle}>
-              Top improvements ranked by impact
-            </Text>
+        {/* Improvement Deltas (Premium) */}
+        {premiumEnabled && result.potential.deltas.length > 0 && (
+          <View style={styles.deltasSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>All Improvement Opportunities</Text>
+              <Text style={styles.sectionSubtitle}>
+                Ranked by impact potential
+              </Text>
+            </View>
+            <View style={styles.deltasList}>
+              {result.potential.deltas.map((delta, idx) => (
+                <View key={delta.lever} style={styles.deltaCard}>
+                  <View style={styles.deltaHeader}>
+                    <Text style={styles.deltaLever}>{delta.lever}</Text>
+                    <View style={styles.deltaBadge}>
+                      <Text style={styles.deltaBadgeText}>+{delta.delta.toFixed(1)}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.deltaIssue}>{delta.currentIssue}</Text>
+                  <View style={styles.deltaFooter}>
+                    <Text style={styles.deltaTimeline}>⏱️ {delta.timeline}</Text>
+                    <Text style={styles.deltaDifficulty}>{delta.difficulty}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
           </View>
-          <View style={styles.fixesList}>
-            {result.topFixes.map((fix, index) => (
-              <TopFixItem
-                key={`${fix.title}-${index}`}
-                fix={fix}
-                index={index}
-                expanded={expandedFixes.has(index)}
-                onPress={() => toggleFix(index)}
-              />
-            ))}
-          </View>
-        </View>
+        )}
 
         {/* Premium Upsell */}
         {!premiumEnabled && (
           <View style={styles.premiumSection}>
             <View style={styles.premiumCard}>
               <Text style={styles.premiumIcon}>🔓</Text>
-              <Text style={styles.premiumTitle}>Unlock Full Analysis</Text>
+              <Text style={styles.premiumTitle}>Unlock Full Potential Analysis</Text>
               <Text style={styles.premiumText}>
-                Get deeper insights with sub-feature breakdowns, detailed "why" explanations, and more personalized fixes.
+                See all {result.potential.deltas.length} improvement levers with detailed timelines, sub-feature breakdowns, and professional options.
               </Text>
               <View style={styles.premiumFeatures}>
-                <Text style={styles.premiumFeature}>✓ Sub-feature ratings (5+ per category)</Text>
-                <Text style={styles.premiumFeature}>✓ Detailed explanations for each finding</Text>
-                <Text style={styles.premiumFeature}>✓ 15-20 personalized fixes</Text>
-                <Text style={styles.premiumFeature}>✓ Facial thirds analysis</Text>
-                <Text style={styles.premiumFeature}>✓ Symmetry breakdown</Text>
-                <Text style={styles.premiumFeature}>✓ Unlimited scans</Text>
+                <Text style={styles.premiumFeature}>✓ All improvement deltas ranked by impact</Text>
+                <Text style={styles.premiumFeature}>✓ Sub-feature breakdown per category</Text>
+                <Text style={styles.premiumFeature}>✓ Professional treatment options (info only)</Text>
+                <Text style={styles.premiumFeature}>✓ Ceiling score estimate</Text>
               </View>
               <Button
                 title="Upgrade to Premium"
@@ -319,12 +320,15 @@ export default function ResultsScreen() {
           </View>
         )}
 
+        {/* Scoring Context */}
+        <View style={styles.scoringContext}>
+          <Text style={styles.scoringTitle}>📊 How We Score</Text>
+          <Text style={styles.scoringText}>{result.safety.scoringContext}</Text>
+        </View>
+
         {/* Disclaimer */}
         <View style={styles.disclaimer}>
           <Text style={styles.disclaimerText}>{result.safety.disclaimer}</Text>
-          {result.safety.photoDisclaimer && (
-            <Text style={styles.photoDisclaimer}>{result.safety.photoDisclaimer}</Text>
-          )}
         </View>
       </ScrollView>
 
@@ -399,19 +403,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xl,
   },
-  overallConfidence: {
+  scoreContextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.sm,
+  },
+  scoreContextText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.textSecondary,
+  },
+  confidenceRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    marginTop: spacing.md,
   },
-  overallConfidenceDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  confidenceDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
-  overallConfidenceText: {
-    fontSize: 14,
+  confidenceText: {
+    fontSize: 12,
     fontWeight: '500',
   },
   overallSummary: {
@@ -422,23 +436,26 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     paddingHorizontal: spacing.md,
   },
-  confidenceNoteBox: {
+  calibrationNote: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceLight,
     padding: spacing.md,
     borderRadius: borderRadius.md,
     marginTop: spacing.md,
   },
-  confidenceNoteIcon: {
+  calibrationIcon: {
     fontSize: 14,
   },
-  confidenceNoteText: {
+  calibrationText: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 12,
     color: colors.textMuted,
-    fontStyle: 'italic',
+    lineHeight: 18,
+  },
+  leversSection: {
+    marginBottom: spacing.xl,
   },
   qualitySection: {
     gap: spacing.sm,
@@ -457,21 +474,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.sm,
   },
-  limitationRow: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-    marginBottom: spacing.xs,
-  },
-  limitationFeature: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    fontWeight: '500',
-    textTransform: 'capitalize',
-  },
-  limitationDesc: {
-    flex: 1,
+  limitationItem: {
     fontSize: 13,
     color: colors.textMuted,
+    marginBottom: 4,
   },
   featuresSection: {
     marginBottom: spacing.xl,
@@ -495,11 +501,59 @@ const styles = StyleSheet.create({
   featureCardWrapper: {
     width: '100%',
   },
-  fixesSection: {
+  deltasSection: {
     marginBottom: spacing.xl,
   },
-  fixesList: {
+  deltasList: {
     gap: spacing.sm,
+  },
+  deltaCard: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  deltaHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  deltaLever: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
+    textTransform: 'capitalize',
+  },
+  deltaBadge: {
+    backgroundColor: `${colors.success}20`,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.sm,
+  },
+  deltaBadgeText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.success,
+  },
+  deltaIssue: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
+  },
+  deltaFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  deltaTimeline: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  deltaDifficulty: {
+    fontSize: 12,
+    color: colors.textMuted,
+    textTransform: 'capitalize',
   },
   premiumSection: {
     marginBottom: spacing.xl,
@@ -521,6 +575,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   premiumText: {
     fontSize: 14,
@@ -538,6 +593,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.success,
   },
+  scoringContext: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  scoringTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  scoringText: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    lineHeight: 18,
+  },
   disclaimer: {
     padding: spacing.md,
     backgroundColor: colors.surfaceLight,
@@ -548,13 +620,5 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 18,
     textAlign: 'center',
-  },
-  photoDisclaimer: {
-    fontSize: 11,
-    color: colors.textMuted,
-    lineHeight: 16,
-    textAlign: 'center',
-    marginTop: spacing.sm,
-    fontStyle: 'italic',
   },
 });

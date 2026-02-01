@@ -14,6 +14,10 @@ export const colors = {
   rose: '#F43F5E',
   roseLight: '#FB7185',
 
+  // Secondary color (for medium confidence, etc.)
+  secondary: '#6366F1',
+  secondaryLight: '#818CF8',
+
   // Background - rich dark navy
   background: '#0A0A0F',
   backgroundSecondary: '#12121A',

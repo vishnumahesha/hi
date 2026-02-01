@@ -126,6 +126,9 @@ export function formatQualityIssue(issue: PhotoQualityIssue): string {
     side_missing: 'Side profile photo recommended.',
     blurry: 'Image is blurry.',
     heavy_filter: 'Heavy filter detected. Use unfiltered photo.',
+    angle_distortion: 'Selfie angle detected. Symmetry may be affected.',
+    inconsistent_lighting: 'Uneven lighting on face.',
+    partial_face: 'Part of face is cropped out.',
   };
 
   return messages[issue] || issue;

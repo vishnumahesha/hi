@@ -8,7 +8,15 @@ import Animated, {
 } from 'react-native-reanimated';
 import { colors, borderRadius, spacing } from '@/constants/theme';
 import { FIX_TYPE_LABELS, DIFFICULTY_LABELS, IMPACT_LABELS } from '@/constants';
-import type { Fix, TopFix } from '@/types/face-analysis';
+import type { Fix, Impact } from '@/types/face-analysis';
+
+// TopFix type for the top fixes display
+interface TopFix {
+  title: string;
+  impact: Impact;
+  why: string;
+  steps: string[];
+}
 
 interface FixItemProps {
   fix: Fix;
@@ -57,7 +65,7 @@ export function FixItem({ fix, index, onPress }: FixItemProps) {
 
         <View style={styles.timeContainer}>
           <Text style={styles.timeIcon}>⏱️</Text>
-          <Text style={styles.timeText}>{fix.timeToSeeChange}</Text>
+          <Text style={styles.timeText}>{fix.timeline}</Text>
         </View>
 
         <View style={styles.steps}>
