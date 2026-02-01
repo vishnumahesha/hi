@@ -1,0 +1,351 @@
+{
+  "meta": {
+    "name": "face_analyzer_db",
+    "version": "1.0.0",
+    "purpose": "Structured trait/measurement/scoring/action library for a facial aesthetics analyzer with current vs potential scoring.",
+    "notes": [
+      "Use ratios/angles (scale-invariant) instead of raw pixel distances when possible.",
+      "Always output confidence + photoQualityIssues.",
+      "Potential score should be a range (min/max) based on modifiable levers."
+    ]
+  },
+
+  "safety_guardrails": {
+    "tone_rules": [
+      "No insults, no shaming, no identity statements ('you are ugly').",
+      "Use neutral phrasing: 'What limits this' instead of 'imperfections'.",
+      "Never promise outcomes. Potential is a range with assumptions."
+    ],
+    "medical_rules": [
+      "Do not give medical diagnosis. Skin guidance must be general and conservative.",
+      "Avoid extreme dieting or unsafe suggestions."
+    ],
+    "anti_obsession_rules": [
+      "Recommend rescans weekly (not daily).",
+      "Rate-limit scans in product (free 1/day or 3/day)."
+    ],
+    "privacy_rules": [
+      "Default: store photos on device only.",
+      "Provide delete-now controls for photos and derived landmarks."
+    ]
+  },
+
+  "photo_quality": {
+    "issues": [
+      { "key": "too_dark", "severity": "high", "user_fix": "Move to brighter natural lighting." },
+      { "key": "harsh_shadows", "severity": "high", "user_fix": "Face a window; avoid overhead lighting." },
+      { "key": "blur", "severity": "high", "user_fix": "Hold still; clean lens; use back camera." },
+      { "key": "too_close_wide_angle", "severity": "high", "user_fix": "Step back; avoid selfie lens distortion." },
+      { "key": "head_tilt", "severity": "medium", "user_fix": "Keep head level; look straight ahead." },
+      { "key": "expression_not_neutral", "severity": "medium", "user_fix": "Relax face; neutral mouth; eyes forward." },
+      { "key": "hair_obstructing", "severity": "medium", "user_fix": "Move hair away from cheeks/forehead/jaw." },
+      { "key": "glasses_obstructing", "severity": "medium", "user_fix": "Remove glasses for scan." },
+      { "key": "multiple_faces", "severity": "high", "user_fix": "Only one face in frame." },
+      { "key": "side_missing", "severity": "low", "user_fix": "Add side profile for better jaw/chin analysis." }
+    ],
+    "quality_score_0_to_1": {
+      "description": "Computed from brightness, sharpness, occlusion, face size, head tilt, and number of faces.",
+      "thresholds": {
+        "block_analysis_below": 0.35,
+        "warn_below": 0.60
+      }
+    }
+  },
+
+  "inputs": {
+    "sex_mode": ["male", "female"],
+    "style_preference_profiles": [
+      { "key": "masculine_leaning", "description": "Slightly higher weight on jaw/chin/brow strength; still neutral tone." },
+      { "key": "feminine_leaning", "description": "Slightly higher weight on eye area/lips/skin clarity; still neutral tone." },
+      { "key": "neutral", "description": "Balanced weights across pillars." }
+    ],
+    "views": ["front", "side"]
+  },
+
+  "measurement_schema": {
+    "landmark_names": [
+      "left_eye_inner", "left_eye_outer", "right_eye_inner", "right_eye_outer",
+      "left_pupil", "right_pupil",
+      "left_brow_inner", "left_brow_outer", "right_brow_inner", "right_brow_outer",
+      "nose_bridge_top", "nose_tip", "nose_alar_left", "nose_alar_right", "nose_base_center",
+      "mouth_left", "mouth_right", "upper_lip_center", "lower_lip_center",
+      "chin_bottom", "chin_center",
+      "jaw_left_angle", "jaw_right_angle",
+      "cheek_left", "cheek_right",
+      "forehead_top_proxy"
+    ],
+    "notes": [
+      "Map these semantic points to your landmark model (MediaPipe/other). Do not hardcode indices unless verified for your model version.",
+      "If forehead_top_proxy is unreliable, lower confidence on facial height and thirds."
+    ],
+
+    "metrics": [
+      { "key": "face_width", "type": "distance", "points": ["cheek_left", "cheek_right"], "normalize_by": "ipd" },
+      { "key": "face_height", "type": "distance", "points": ["forehead_top_proxy", "chin_bottom"], "normalize_by": "ipd", "reliability": "low" },
+
+      { "key": "ipd", "type": "distance", "points": ["left_pupil", "right_pupil"], "normalize_by": null },
+      { "key": "intercanthal", "type": "distance", "points": ["left_eye_inner", "right_eye_inner"], "normalize_by": "ipd" },
+      { "key": "eye_fissure_left", "type": "distance", "points": ["left_eye_inner", "left_eye_outer"], "normalize_by": "ipd" },
+      { "key": "eye_fissure_right", "type": "distance", "points": ["right_eye_inner", "right_eye_outer"], "normalize_by": "ipd" },
+
+      { "key": "nose_width", "type": "distance", "points": ["nose_alar_left", "nose_alar_right"], "normalize_by": "ipd" },
+      { "key": "nose_length", "type": "distance", "points": ["nose_bridge_top", "nose_tip"], "normalize_by": "ipd" },
+
+      { "key": "mouth_width", "type": "distance", "points": ["mouth_left", "mouth_right"], "normalize_by": "ipd" },
+      { "key": "philtrum_length", "type": "distance", "points": ["nose_base_center", "upper_lip_center"], "normalize_by": "ipd" },
+      { "key": "lower_face_height", "type": "distance", "points": ["nose_base_center", "chin_bottom"], "normalize_by": "ipd" },
+
+      { "key": "jaw_width", "type": "distance", "points": ["jaw_left_angle", "jaw_right_angle"], "normalize_by": "ipd" },
+
+      { "key": "canthal_tilt_left", "type": "angle", "points": ["left_eye_inner", "left_eye_outer"], "note": "Compute tilt vs horizontal; sensitive to head tilt." },
+      { "key": "canthal_tilt_right", "type": "angle", "points": ["right_eye_inner", "right_eye_outer"], "note": "Compute tilt vs horizontal; sensitive to head tilt." },
+
+      { "key": "symmetry_eye_height_delta", "type": "delta", "points": ["left_eye_outer", "right_eye_outer"], "normalize_by": "ipd" },
+      { "key": "symmetry_mouth_corner_delta", "type": "delta", "points": ["mouth_left", "mouth_right"], "normalize_by": "ipd" },
+      { "key": "nose_deviation", "type": "delta", "points": ["nose_tip", "chin_center"], "normalize_by": "ipd", "note": "Deviation from midline proxy; head tilt sensitive." }
+    ],
+
+    "derived_ratios": [
+      { "key": "face_width_to_height", "formula": "face_width / face_height", "reliability": "low" },
+      { "key": "nose_width_ratio", "formula": "nose_width / face_width", "reliability": "medium" },
+      { "key": "mouth_width_ratio", "formula": "mouth_width / face_width", "reliability": "medium" },
+      { "key": "jaw_to_cheek_ratio", "formula": "jaw_width / face_width", "reliability": "medium" },
+      { "key": "eye_spacing_ratio", "formula": "intercanthal / ipd", "reliability": "high" }
+    ]
+  },
+
+  "scoring": {
+    "score_scale": "0_to_10",
+    "calibration": {
+      "target_mean": 5.5,
+      "target_std": 1.2,
+      "rule": "Avoid score clustering at ~7. If uncertain or low photo quality, reduce confidence and keep scores near population mean."
+    },
+    "confidence_levels": ["low", "medium", "high"],
+
+    "mapping_functions": {
+      "zscore_to_0_10": {
+        "description": "Map a z-score to 0-10 using a smooth logistic curve, then clamp 0-10.",
+        "pseudo": "score = 10 * sigmoid(z / 1.25); score = clamp(score,0,10)"
+      },
+      "penalize_low_quality": {
+        "description": "If photoQuality.score < 0.6, reduce feature confidence and dampen extreme scores toward 5.5.",
+        "pseudo": "score = lerp(5.5, score, quality_factor)"
+      }
+    },
+
+    "pillars": [
+      { "key": "structure", "weight_default": 0.40, "traits": ["face_shape", "facial_thirds", "chin_projection_proxy", "jaw_definition_proxy"] },
+      { "key": "features", "weight_default": 0.30, "traits": ["eyes_core", "brows_core", "nose_core", "lips_core", "cheekbones_core"] },
+      { "key": "presentation", "weight_default": 0.20, "traits": ["skin_quality", "hair_fit"] },
+      { "key": "harmony", "weight_default": 0.10, "traits": ["symmetry_index", "proportion_harmony"] }
+    ],
+
+    "weight_presets": [
+      {
+        "key": "neutral",
+        "weights": { "structure": 0.40, "features": 0.30, "presentation": 0.20, "harmony": 0.10 }
+      },
+      {
+        "key": "masculine_leaning",
+        "weights": { "structure": 0.45, "features": 0.28, "presentation": 0.17, "harmony": 0.10 }
+      },
+      {
+        "key": "feminine_leaning",
+        "weights": { "structure": 0.35, "features": 0.33, "presentation": 0.22, "harmony": 0.10 }
+      }
+    ]
+  },
+
+  "potential_model": {
+    "description": "Potential is current + realistic deltas from modifiable levers. Output a RANGE (min/max) not a single promise.",
+    "delta_caps": [
+      { "lever": "hair", "min": 0.2, "max": 0.8 },
+      { "lever": "skin", "min": 0.2, "max": 1.0 },
+      { "lever": "brows", "min": 0.1, "max": 0.5 },
+      { "lever": "under_eye", "min": 0.1, "max": 0.6 },
+      { "lever": "posture", "min": 0.1, "max": 0.4 },
+      { "lever": "presentation_photos", "min": 0.1, "max": 0.3 }
+    ],
+    "timeline_buckets": [
+      { "key": "today", "range_days": [0, 1] },
+      { "key": "2_4_weeks", "range_days": [14, 28] },
+      { "key": "8_12_weeks", "range_days": [56, 84] }
+    ]
+  },
+
+  "trait_catalog": [
+    {
+      "key": "face_shape",
+      "name": "Face shape class",
+      "category": "global",
+      "views_required": ["front"],
+      "reliability": "medium",
+      "modifiability": "low",
+      "metrics_used": ["face_width_to_height", "jaw_to_cheek_ratio"],
+      "output_type": "class",
+      "classes": ["oval", "round", "square", "heart", "diamond", "oblong"],
+      "notes": ["Use confidence. Hair can distort classification."]
+    },
+
+    {
+      "key": "symmetry_index",
+      "name": "Symmetry index",
+      "category": "global",
+      "views_required": ["front"],
+      "reliability": "medium",
+      "modifiability": "low",
+      "metrics_used": ["symmetry_eye_height_delta", "symmetry_mouth_corner_delta", "nose_deviation"],
+      "output_type": "score",
+      "notes": ["Head tilt and expression can fake asymmetry. Lower confidence if head_tilt or expression_not_neutral."]
+    },
+
+    {
+      "key": "facial_thirds",
+      "name": "Facial thirds balance",
+      "category": "global",
+      "views_required": ["front"],
+      "reliability": "low",
+      "modifiability": "low",
+      "metrics_used": ["face_height", "lower_face_height", "nose_length"],
+      "output_type": "score",
+      "notes": ["Forehead_top_proxy reliability is often low; treat as approximate."]
+    },
+
+    {
+      "key": "proportion_harmony",
+      "name": "Proportion harmony",
+      "category": "global",
+      "views_required": ["front"],
+      "reliability": "medium",
+      "modifiability": "low",
+      "metrics_used": ["nose_width_ratio", "mouth_width_ratio", "eye_spacing_ratio", "jaw_to_cheek_ratio"],
+      "output_type": "score",
+      "notes": ["This is deviation-from-reference based. Keep neutral and confidence-aware."]
+    },
+
+    { "key": "eyes_core", "name": "Eyes (core)", "category": "eyes", "views_required": ["front"], "reliability": "high", "modifiability": "low", "metrics_used": ["eye_fissure_left", "eye_fissure_right", "eye_spacing_ratio", "canthal_tilt_left", "canthal_tilt_right"], "output_type": "score", "notes": ["Expression and head tilt affect tilt metrics; reduce confidence if head_tilt present."] },
+    { "key": "eye_spacing", "name": "Eye spacing", "category": "eyes", "views_required": ["front"], "reliability": "high", "modifiability": "low", "metrics_used": ["eye_spacing_ratio"], "output_type": "score", "notes": [] },
+    { "key": "canthal_tilt", "name": "Canthal tilt", "category": "eyes", "views_required": ["front"], "reliability": "medium", "modifiability": "low", "metrics_used": ["canthal_tilt_left", "canthal_tilt_right"], "output_type": "score", "notes": ["Head tilt sensitive."] },
+
+    { "key": "brows_core", "name": "Brows (core)", "category": "brows", "views_required": ["front"], "reliability": "medium", "modifiability": "high", "metrics_used": [], "output_type": "score", "notes": ["Often best handled as presentation + shape classification."] },
+    { "key": "brow_symmetry", "name": "Brow symmetry", "category": "brows", "views_required": ["front"], "reliability": "low", "modifiability": "medium", "metrics_used": [], "output_type": "score", "notes": ["Hair/lighting affects brow detection."] },
+
+    { "key": "nose_core", "name": "Nose (core)", "category": "nose", "views_required": ["front"], "reliability": "medium", "modifiability": "low", "metrics_used": ["nose_width", "nose_length", "nose_width_ratio"], "output_type": "score", "notes": ["Side view improves projection but is optional."] },
+    { "key": "nose_width_trait", "name": "Nose width proportion", "category": "nose", "views_required": ["front"], "reliability": "high", "modifiability": "low", "metrics_used": ["nose_width_ratio"], "output_type": "score", "notes": [] },
+    { "key": "nose_deviation_trait", "name": "Nose deviation", "category": "nose", "views_required": ["front"], "reliability": "low", "modifiability": "low", "metrics_used": ["nose_deviation"], "output_type": "score", "notes": ["Head tilt sensitive."] },
+
+    { "key": "lips_core", "name": "Lips (core)", "category": "lips", "views_required": ["front"], "reliability": "medium", "modifiability": "medium", "metrics_used": ["mouth_width", "mouth_width_ratio", "philtrum_length"], "output_type": "score", "notes": ["Expression changes lip shape; require neutral expression for best confidence."] },
+    { "key": "philtrum_trait", "name": "Philtrum length proportion", "category": "lips", "views_required": ["front"], "reliability": "medium", "modifiability": "low", "metrics_used": ["philtrum_length"], "output_type": "score", "notes": [] },
+
+    { "key": "cheekbones_core", "name": "Cheekbones (proxy)", "category": "midface", "views_required": ["front"], "reliability": "low", "modifiability": "low", "metrics_used": ["face_width"], "output_type": "score", "notes": ["True cheekbone prominence is lighting-sensitive; treat cautiously."] },
+
+    { "key": "jaw_definition_proxy", "name": "Jaw definition (proxy)", "category": "jaw", "views_required": ["front"], "reliability": "low", "modifiability": "medium", "metrics_used": ["jaw_width", "jaw_to_cheek_ratio"], "output_type": "score", "notes": ["Lighting/body fat/posture strongly influence appearance. Use low confidence unless side view + good lighting."] },
+    { "key": "chin_projection_proxy", "name": "Chin projection (proxy)", "category": "jaw", "views_required": ["side"], "reliability": "low", "modifiability": "low", "metrics_used": [], "output_type": "score", "notes": ["Only score if side provided; otherwise return low confidence and omit strong claims."] },
+
+    { "key": "skin_quality", "name": "Skin quality (presentation)", "category": "skin", "views_required": ["front"], "reliability": "low", "modifiability": "high", "metrics_used": [], "output_type": "score", "notes": ["Highly lighting-dependent. Prefer conservative, actionable guidance."] },
+    { "key": "under_eye_presentation", "name": "Under-eye presentation", "category": "skin", "views_required": ["front"], "reliability": "low", "modifiability": "medium", "metrics_used": [], "output_type": "score", "notes": ["Lighting sensitive; present as 'appearance in this photo'."] },
+
+    { "key": "hair_fit", "name": "Hair fit to face", "category": "hair", "views_required": ["front"], "reliability": "medium", "modifiability": "high", "metrics_used": ["face_width_to_height"], "output_type": "score", "notes": ["Drive this mainly via face_shape + hair volume/framing heuristics."] },
+
+    { "key": "posture_proxy", "name": "Posture/neck angle (proxy)", "category": "presentation", "views_required": ["side"], "reliability": "low", "modifiability": "high", "metrics_used": [], "output_type": "score", "notes": ["If side missing, keep this informational only."] }
+  ],
+
+  "feature_groups_for_ui": [
+    { "key": "overview", "contains": ["face_shape", "symmetry_index", "proportion_harmony", "skin_quality", "hair_fit"] },
+    { "key": "features", "contains": ["eyes_core", "brows_core", "nose_core", "lips_core", "cheekbones_core", "jaw_definition_proxy", "skin_quality", "hair_fit"] },
+    { "key": "measurements", "contains": ["face_width_to_height", "eye_spacing_ratio", "nose_width_ratio", "mouth_width_ratio", "jaw_to_cheek_ratio"] }
+  ],
+
+  "action_library": [
+    {
+      "key": "photo_lighting_fix",
+      "name": "Improve lighting and angle",
+      "type": "no_cost",
+      "difficulty": "easy",
+      "time_to_impact": "today",
+      "safety": "safe",
+      "applies_to_levers": ["presentation_photos"],
+      "steps": ["Face a window", "Use back camera", "Hold at eye level", "Step back slightly to reduce wide-angle distortion"]
+    },
+    {
+      "key": "basic_skincare_am",
+      "name": "Simple AM skincare",
+      "type": "routine",
+      "difficulty": "easy",
+      "time_to_impact": "2_4_weeks",
+      "safety": "safe",
+      "applies_to_levers": ["skin"],
+      "steps": ["Gentle cleanser", "Moisturizer", "SPF daily"]
+    },
+    {
+      "key": "basic_skincare_pm",
+      "name": "Simple PM skincare",
+      "type": "routine",
+      "difficulty": "easy",
+      "time_to_impact": "2_4_weeks",
+      "safety": "safe",
+      "applies_to_levers": ["skin"],
+      "steps": ["Gentle cleanser", "Moisturizer", "Add one active only if tolerated (optional)"]
+    },
+    {
+      "key": "brow_grooming",
+      "name": "Brow cleanup and shape",
+      "type": "low_cost",
+      "difficulty": "easy",
+      "time_to_impact": "today",
+      "safety": "safe",
+      "applies_to_levers": ["brows"],
+      "steps": ["Brush brows up", "Trim only long strays", "Clean edges conservatively", "Avoid over-thinning"]
+    },
+    {
+      "key": "haircut_reco",
+      "name": "Haircut that fits face shape",
+      "type": "low_cost",
+      "difficulty": "easy",
+      "time_to_impact": "today",
+      "safety": "safe",
+      "applies_to_levers": ["hair"],
+      "steps": ["Match cut to face shape", "Add volume/framing where needed", "Keep sides/top balanced for proportions"]
+    },
+    {
+      "key": "posture_chin_tucks",
+      "name": "Chin tuck posture drill",
+      "type": "no_cost",
+      "difficulty": "easy",
+      "time_to_impact": "2_4_weeks",
+      "safety": "safe",
+      "applies_to_levers": ["posture"],
+      "steps": ["2 sets of 10 reps daily", "Hold each rep 2-3 seconds", "Avoid pain; keep movement small"]
+    },
+    {
+      "key": "sleep_consistency",
+      "name": "Sleep consistency",
+      "type": "no_cost",
+      "difficulty": "medium",
+      "time_to_impact": "2_4_weeks",
+      "safety": "safe",
+      "applies_to_levers": ["under_eye", "skin"],
+      "steps": ["Fixed wake time", "7-9 hours target", "Reduce screens before bed"]
+    }
+  ],
+
+  "llm_output_contract": {
+    "required_fields": [
+      "photoQuality.score",
+      "photoQuality.issues",
+      "overall.currentScore10",
+      "overall.potentialScoreRange",
+      "overall.confidence",
+      "topLevers",
+      "features"
+    ],
+    "feature_keys_for_app": [
+      "eyes", "brows", "nose", "lips", "cheekbones", "jawline", "skin", "hair", "harmony", "symmetry", "posture"
+    ],
+    "notes": [
+      "Even if your trait_catalog is larger, the UI can stay simple with these 8-10 cards.",
+      "Deeper traits can appear only in premium or in expanded sections."
+    ]
+  }
+}
